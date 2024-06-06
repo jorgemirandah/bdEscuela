@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">BdEscuela</string>
+    <string name="fecha">Date</string>
+    <string name="nombre">Name</string>
+    <string name="aula">Classroom</string>
+    <string name="seleccionarAula">Select Classroom</string>
+    <string name="insertar_bebe">Insert Baby</string>
+    <string name="seleccionar_color">Select Color</string>
+    <string name="capacidad">Capacity</string>
+    <string name="agregar">Add</string>
+    <string name="nombre_del_aula">Classroom Name</string>
+    <string name="apellido">Last Name</string>
+    <string name="insertar">Insert</string>
+    <string name="agregar_aula">Add Classroom</string>
+    <string name="capacidad_label">Capacity: </string>
+    <string name="capacidad_placeholder">%d</string>
+
+</resources>
