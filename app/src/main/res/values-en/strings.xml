@@ -14,5 +14,25 @@
     <string name="agregar_aula">Add Classroom</string>
     <string name="capacidad_label">Capacity: </string>
     <string name="capacidad_placeholder">%d</string>
+    <string name="asistencia">Attendance</string>
+    <string name="obligatorios">Name and capacity are mandatory</string>
+    <string name="cancelar">Cancel</string>
+    <string name="aula_seleccionada">Selected classroom: </string>
+    <string name="aula_eliminada">Classroom deleted: </string>
+    <string name="guardar_asistencia">Save Attendance</string>
+    <string name="detalles">Details</string>
+    <string name="direcci_n">Address</string>
+    <string name="email">Email</string>
+    <string name="tel_fono">Phone</string>
+    <string name="_1_1">1/1</string>
+    <string name="eliminar_tutor">Delete Tutor</string>
+    <string name="agregar_men">Add Menu</string>
+    <string name="seleccionar_intolerancia">Select Intolerance</string>
+    <string name="guardar">Save</string>
+    <string name="men">Menu</string>
+    <string name="agregar_intolerancia">Add Intolerance</string>
+    <string name="ver_menu">View Menu</string>
+    <string name="tutor">Tutor</string>
+    <string name="seleccionar_todas_aulas">Select All Classrooms</string>
 
 </resources>

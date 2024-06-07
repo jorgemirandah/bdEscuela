@@ -15,5 +15,25 @@
     <string name="capacidad_label">Capacidad: </string>
     <string name="capacidad_placeholder">%d</string>
     <string name="asistencia">Asistencia</string>
-
+    <string name="obligatorios">Nombre y capacidad son obligatorios</string>
+    <string name="cancelar">Cancelar</string>
+    <string name="aula_seleccionada">Aula seleccionada: </string>
+    <string name="aula_eliminada">Aula eliminada: </string>
+    <string name="guardar_asistencia">Guardar Asistencia</string>
+    <string name="detalles">Detalles</string>
+    <string name="direcci_n">Dirección</string>
+    <string name="email">Email</string>
+    <string name="tel_fono">Teléfono</string>
+    <string name="_1_1">1/1</string>
+    <string name="eliminar_tutor">Eliminar Tutor</string>
+    <string name="agregar_men">Agregar Menú</string>
+    <string name="seleccionar_intolerancia">Seleccionar intolerancia</string>
+    <string name="guardar">Guardar</string>
+    <string name="men">Menú</string>
+    <string name="agregar_intolerancia">Agregar Intolerancia</string>
+    <string name="ver_menu">Ver menú</string>
+    <string name="tutor">Tutor</string>
+    <string name="seleccionar_todas_aulas">Seleccionar Todas Aulas</string>
+    <string name="nombre_obligatorio">Es obligatorio poner un nombre</string>
+    <string name="no_intolerancias">No hay intolerancias en común</string>
 </resources>

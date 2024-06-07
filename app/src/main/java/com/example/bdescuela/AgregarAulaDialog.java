@@ -23,7 +23,7 @@ public class AgregarAulaDialog extends AppCompatDialogFragment {
     private EditText editTextNombre, editTextCapacidad;
     private TextView textViewColor;
     private Button buttonAgregar, buttonSeleccionarColor;
-    private int aulaColor = 0xFFFFFF; // Uso el color blanco por defecto
+    private int aulaColor = 0xFFFFFF; // Uso el color blanco en caso de que no se ponga otro color
 
     @NonNull
     @Override
@@ -39,36 +39,28 @@ public class AgregarAulaDialog extends AppCompatDialogFragment {
         buttonSeleccionarColor = view.findViewById(R.id.buttonSeleccionarColor);
 
         builder.setView(view)
-                .setTitle("Agregar Aula")
-                .setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // Acción al cancelar
-                    }
+                .setTitle(R.string.agregar_aula)
+                .setNegativeButton(R.string.cancelar, (dialog, which) -> {
                 });
 
-        buttonSeleccionarColor.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openColorPickerDialog();
+        buttonSeleccionarColor.setOnClickListener(v -> openColorPickerDialog());
+
+        buttonAgregar.setOnClickListener(v -> {
+            String nombre = editTextNombre.getText().toString();
+            String capacidadStr = editTextCapacidad.getText().toString();
+
+            if (nombre.isEmpty()) {
+                Toast.makeText(getContext(), R.string.nombre_obligatorio, Toast.LENGTH_SHORT).show();
+                return;
             }
-        });
+            int capacidad = 0;
+            try{
+                capacidad = Integer.parseInt(capacidadStr);
+            }catch (Exception e){
 
-        buttonAgregar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String nombre = editTextNombre.getText().toString();
-                String capacidadStr = editTextCapacidad.getText().toString();
-
-                if (nombre.isEmpty() || capacidadStr.isEmpty()) {
-                    Toast.makeText(getContext(), "Nombre y capacidad son obligatorios", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                int capacidad = Integer.parseInt(capacidadStr);
-                agregarAula(nombre, capacidad, aulaColor);
-                dismiss();
             }
+            agregarAula(nombre, capacidad, aulaColor);
+            dismiss();
         });
 
         return builder.create();
@@ -90,17 +82,19 @@ public class AgregarAulaDialog extends AppCompatDialogFragment {
     }
 
     private void agregarAula(String nombre, int capacidad, int color) {
-        // Insertar aula en la base de datos
         DatabaseHelper dbHelper = new DatabaseHelper(getContext());
         SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        int siguienteId = dbHelper.obtenerSiguienteIdAula();
+
         ContentValues values = new ContentValues();
+        values.put("id", siguienteId);
         values.put("nombre", nombre);
         values.put("capacidad", capacidad);
         values.put("color", color);
-        db.insert("aula", null, values);
-        db.close();
 
-        // Actualizar la lista de aulas en la actividad
+        db.insert("aula", null, values);
+
         SeleccionarAulaActivity activity = (SeleccionarAulaActivity) getActivity();
         assert activity != null;
         activity.actualizarListaAulas();

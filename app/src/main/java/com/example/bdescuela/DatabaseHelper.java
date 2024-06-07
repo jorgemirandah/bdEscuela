@@ -1,16 +1,32 @@
 package com.example.bdescuela;
 
+import android.annotation.SuppressLint;
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "escuela_infantil.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 7;
+    private static final String TABLE_BEBE = "bebe";
+    private static final String TABLE_ASISTENCIA = "asistencia";
+    private static final String TABLE_TUTOR = "tutor";
+    private static final String TABLE_AULA = "aula";
+    private static final String TABLE_MENU = "menu";
+    private static final String TABLE_INTOLERANCIA = "intolerancia";
+    private static final String TABLE_INTOLERANCIA_COMUN = "intolerancia_comun";
+    private static final String TABLE_MENU_INTOLERANCIA_COMUN = "menu_intolerancia_comun";
+
 
     // Sentencias para crear las tablas
-    private static final String CREATE_TABLE_BEBE = "CREATE TABLE bebe (" +
+    private static final String CREATE_TABLE_BEBE = "CREATE TABLE " + TABLE_BEBE + " (" +
             "id INTEGER PRIMARY KEY AUTOINCREMENT," +
             "nombre TEXT NOT NULL," +
             "apellido TEXT NOT NULL," +
@@ -18,7 +34,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             "imagen BLOB" +
             ");";
 
-    private static final String CREATE_TABLE_ASISTENCIA = "CREATE TABLE asistencia (" +
+    private static final String CREATE_TABLE_ASISTENCIA = "CREATE TABLE " + TABLE_ASISTENCIA + " (" +
             "id INTEGER PRIMARY KEY AUTOINCREMENT," +
             "bebe_id INTEGER NOT NULL," +
             "fecha DATE NOT NULL," +
@@ -27,35 +43,48 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             "FOREIGN KEY (bebe_id) REFERENCES bebe(id)" +
             ");";
 
-    private static final String CREATE_TABLE_TUTOR = "CREATE TABLE tutor (" +
+    private static final String CREATE_TABLE_TUTOR = "CREATE TABLE " + TABLE_TUTOR + " (" +
             "id INTEGER PRIMARY KEY AUTOINCREMENT," +
             "bebe_id INTEGER NOT NULL," +
-            "nombre TEXT NOT NULL," +
-            "apellido TEXT NOT NULL," +
-            "telefono TEXT NOT NULL," +
+            "nombre TEXT," +
+            "apellido TEXT," +
+            "telefono TEXT," +
             "email TEXT," +
             "direccion TEXT," +
             "FOREIGN KEY (bebe_id) REFERENCES bebe(id)" +
             ");";
 
-    private static final String CREATE_TABLE_AULA = "CREATE TABLE aula (" +
+    private static final String CREATE_TABLE_AULA = "CREATE TABLE " + TABLE_AULA + " (" +
             "id INTEGER PRIMARY KEY AUTOINCREMENT," +
             "nombre TEXT NOT NULL," +
             "capacidad INTEGER NOT NULL," +
             "color INTEGER NOT NULL" +
             ");";
 
-    private static final String CREATE_TABLE_MENU = "CREATE TABLE menu (" +
+    private static final String CREATE_TABLE_MENU = "CREATE TABLE " + TABLE_MENU + " (" +
             "id INTEGER PRIMARY KEY AUTOINCREMENT," +
             "fecha DATE NOT NULL," +
-            "descripcion TEXT NOT NULL" +
+            "descripcion TEXT" +
             ");";
 
-    private static final String CREATE_TABLE_INTOLERANCIA = "CREATE TABLE intolerancia (" +
+    private static final String CREATE_TABLE_MENU_INTOLERANCIA_COMUN = "CREATE TABLE " + TABLE_MENU_INTOLERANCIA_COMUN +"(" +
+            "menu_id INTEGER NOT NULL," +
+            "intolerancia_comun_id INTEGER NOT NULL," +
+            "FOREIGN KEY (menu_id) REFERENCES menu(id)," +
+            "FOREIGN KEY (intolerancia_comun_id) REFERENCES intolerancias_comunes(id)" +
+            ");";
+
+    private static final String CREATE_TABLE_INTOLERANCIA = "CREATE TABLE " + TABLE_INTOLERANCIA + " (" +
             "id INTEGER PRIMARY KEY AUTOINCREMENT," +
             "bebe_id INTEGER NOT NULL," +
-            "descripcion TEXT NOT NULL," +
-            "FOREIGN KEY (bebe_id) REFERENCES bebe(id)" +
+            "intolerancia_comun_id INTEGER NOT NULL," +
+            "FOREIGN KEY (bebe_id) REFERENCES bebe(id)," +
+            "FOREIGN KEY (intolerancia_comun_id) REFERENCES intolerancias_comunes(id)" +
+            ");";
+
+    private static final String CREATE_TABLE_INTOLERANCIA_COMUN = "CREATE TABLE " + TABLE_INTOLERANCIA_COMUN + " (" +
+            "id INTEGER PRIMARY KEY AUTOINCREMENT," +
+            "descripcion TEXT NOT NULL" +
             ");";
 
     public DatabaseHelper(Context context) {
@@ -70,16 +99,305 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(CREATE_TABLE_AULA);
         db.execSQL(CREATE_TABLE_MENU);
         db.execSQL(CREATE_TABLE_INTOLERANCIA);
+        db.execSQL(CREATE_TABLE_INTOLERANCIA_COMUN);
+        db.execSQL(CREATE_TABLE_MENU_INTOLERANCIA_COMUN);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS bebe");
-        db.execSQL("DROP TABLE IF EXISTS asistencia");
-        db.execSQL("DROP TABLE IF EXISTS tutor");
-        db.execSQL("DROP TABLE IF EXISTS aula");
-        db.execSQL("DROP TABLE IF EXISTS menu");
-        db.execSQL("DROP TABLE IF EXISTS intolerancia");
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_BEBE);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_ASISTENCIA);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_TUTOR);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_AULA);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_MENU);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_INTOLERANCIA);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_INTOLERANCIA_COMUN);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_MENU_INTOLERANCIA_COMUN);
         onCreate(db);
     }
+
+    public void updateBebeImage(int id, byte[] image) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("imagen", image);
+        db.update(TABLE_BEBE, values, "id = ?", new String[]{String.valueOf(id)});
+    }
+    public void deleteBebe(int id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete("bebe", "id = ?", new String[]{String.valueOf(id)});
+        db.close();
+    }
+    public void deleteAula(int id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete("aula", "id = ?", new String[]{String.valueOf(id)});
+        db.close();
+    }
+    public int obtenerSiguienteIdAula(){
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT MAX(id) AS max_id FROM aula";
+        Cursor cursor = db.rawQuery(query, null);
+        int siguienteId = 1;
+
+        if (cursor.moveToFirst()) {
+            @SuppressLint("Range") int maxId = cursor.getInt(cursor.getColumnIndex("max_id"));
+            siguienteId = maxId + 1;
+        }
+        cursor.close();
+        return siguienteId;
+    }
+
+    public List<Integer> obtenerAsistenciaPorFecha(String fecha) {
+        List<Integer> bebesAsistentes = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT bebe_id FROM asistencia WHERE fecha = ?";
+        Cursor cursor = db.rawQuery(query, new String[]{fecha});
+
+        if (cursor.moveToFirst()) {
+            do {
+                @SuppressLint("Range") int bebeId = cursor.getInt(cursor.getColumnIndex("bebe_id"));
+                bebesAsistentes.add(bebeId);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return bebesAsistentes;
+    }
+    @SuppressLint("Range")
+    public Tutor obtenerTutorPorBebeId(int bebeId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Tutor tutor = null;
+        Cursor cursor = db.rawQuery("SELECT * FROM tutor WHERE bebe_id = ?", new String[]{String.valueOf(bebeId)});
+        if (cursor.moveToFirst()) {
+            tutor = new Tutor(
+                    cursor.getInt(cursor.getColumnIndex("id")),
+                    cursor.getInt(cursor.getColumnIndex("bebe_id")),
+                    cursor.getString(cursor.getColumnIndex("nombre")),
+                    cursor.getString(cursor.getColumnIndex("apellido")),
+                    cursor.getString(cursor.getColumnIndex("telefono")),
+                    cursor.getString(cursor.getColumnIndex("email")),
+                    cursor.getString(cursor.getColumnIndex("direccion"))
+            );
+        }
+        cursor.close();
+        return tutor;
+    }
+    @SuppressLint("Range")
+    public List<Tutor> obtenerTutoresPorBebeId(int bebeId) {
+        List<Tutor> tutorList = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM tutor WHERE bebe_id = ?", new String[]{String.valueOf(bebeId)});
+        if (cursor.moveToFirst()) {
+            do {
+                Tutor tutor = new Tutor(
+                        cursor.getInt(cursor.getColumnIndex("id")),
+                        cursor.getInt(cursor.getColumnIndex("bebe_id")),
+                        cursor.getString(cursor.getColumnIndex("nombre")),
+                        cursor.getString(cursor.getColumnIndex("apellido")),
+                        cursor.getString(cursor.getColumnIndex("telefono")),
+                        cursor.getString(cursor.getColumnIndex("email")),
+                        cursor.getString(cursor.getColumnIndex("direccion"))
+                );
+                tutorList.add(tutor);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return tutorList;
+    }
+
+
+    public void guardarTutor(Tutor tutor) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("bebe_id", tutor.getBebeId());
+        values.put("nombre", tutor.getNombre());
+        values.put("apellido", tutor.getApellido());
+        values.put("telefono", tutor.getTelefono());
+        values.put("email", tutor.getEmail());
+        values.put("direccion", tutor.getDireccion());
+
+        if (tutor.getId() == 0) {
+            long id = db.insert("tutor", null, values);
+            tutor.setId((int) id);
+        } else {
+            db.update("tutor", values, "id = ?", new String[]{String.valueOf(tutor.getId())});
+        }
+    }
+    public void eliminarTutor(int tutorId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete("tutor", "id = ?", new String[]{String.valueOf(tutorId)});
+    }
+    @SuppressLint("Range")
+    public List<String> obtenerIntoleranciasComunes() {
+        List<String> intolerancias = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT descripcion FROM " + TABLE_INTOLERANCIA_COMUN, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                intolerancias.add(cursor.getString(cursor.getColumnIndex("descripcion")));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return intolerancias;
+    }
+    @SuppressLint("Range")
+    public int obtenerIntoleranciaComunId(String descripcion) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT id FROM " + TABLE_INTOLERANCIA_COMUN + " WHERE descripcion = ?", new String[]{descripcion});
+        int id = -1;
+        if (cursor.moveToFirst()) {
+            id = cursor.getInt(cursor.getColumnIndex("id"));
+        }
+        cursor.close();
+        return id;
+    }
+
+
+    public long guardarMenu(String descripcion, String fecha) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("descripcion", descripcion);
+        values.put("fecha", fecha);
+        return db.insert(TABLE_MENU, null, values);
+    }
+    public void insertarIntoleranciaComun(String descripcion) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("descripcion", descripcion);
+        db.insert(TABLE_INTOLERANCIA_COMUN, null, values);
+    }
+    @SuppressLint("Range")
+    public String obtenerMenuPorFecha(String fecha) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT descripcion FROM " + TABLE_MENU + " WHERE fecha = ?", new String[]{fecha});
+        String menu = null;
+        if (cursor.moveToFirst()) {
+            menu = cursor.getString(cursor.getColumnIndex("descripcion"));
+        }
+        cursor.close();
+        return menu;
+    }
+    @SuppressLint("Range")
+    public List<Integer> obtenerIntoleranciasPorMenuId(long menuId) {
+        List<Integer> intolerancias = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT intolerancia_comun_id FROM menu_intolerancia_comun WHERE menu_id = ?", new String[]{String.valueOf(menuId)});
+
+        if (cursor.moveToFirst()) {
+            do {
+                intolerancias.add(cursor.getInt(cursor.getColumnIndex("intolerancia_comun_id")));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return intolerancias;
+    }
+    @SuppressLint("Range")
+    public long obtenerMenuIdPorFecha(String fecha) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT id FROM " + TABLE_MENU + " WHERE fecha = ?", new String[]{fecha});
+        long menuId = -1;
+        if (cursor.moveToFirst()) {
+            menuId = cursor.getLong(cursor.getColumnIndex("id"));
+        }
+        cursor.close();
+        return menuId;
+    }
+
+    @SuppressLint("Range")
+    public String obtenerIntoleranciaComunDescripcionPorId(int id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT descripcion FROM " + TABLE_INTOLERANCIA_COMUN + " WHERE id = ?", new String[]{String.valueOf(id)});
+        String descripcion = null;
+        if (cursor.moveToFirst()) {
+            descripcion = cursor.getString(cursor.getColumnIndex("descripcion"));
+        }
+        cursor.close();
+        return descripcion;
+    }
+    public void eliminarMenuPorFecha(String fecha) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("DELETE FROM " + TABLE_MENU + " WHERE fecha = ?", new Object[]{fecha});
+    }
+
+    public void guardarMenuIntoleranciaComun(long menuId, int intoleranciaComunId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("menu_id", menuId);
+        values.put("intolerancia_comun_id", intoleranciaComunId);
+        db.insert("menu_intolerancia_comun", null, values);
+    }
+
+    public boolean tieneIntoleranciaEnMenu(String fecha, int bebeId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String query = "SELECT COUNT(*) FROM menu_intolerancia_comun mic " +
+                "JOIN menu m ON mic.menu_id = m.id " +
+                "JOIN intolerancia_comun ic ON mic.intolerancia_comun_id = ic.id " +
+                "JOIN intolerancia i ON ic.id = i.intolerancia_comun_id " +
+                "WHERE m.fecha = ? AND i.bebe_id = ?";
+
+        Cursor cursor = db.rawQuery(query, new String[]{fecha, String.valueOf(bebeId)});
+        cursor.moveToFirst();
+        int count = cursor.getInt(0);
+        cursor.close();
+
+        return count > 0;
+    }
+    @SuppressLint("Range")
+    public List<String> getIntoleranciasEnComun(int bebeId, String fechaMenu) {
+        List<String> intoleranciasEnComun = new ArrayList<>();
+
+        String query = "SELECT ic.descripcion " +
+                "FROM intolerancias_comunes ic " +
+                "JOIN intolerancia i ON ic.id = i.intolerancia_comun_id " +
+                "JOIN menu_intolerancia_comun mic ON ic.id = mic.intolerancia_comun_id " +
+                "JOIN menu m ON mic.menu_id = m.id " +
+                "WHERE i.bebe_id = ? AND m.fecha = ?";
+
+        try (SQLiteDatabase db = this.getReadableDatabase();
+             Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(bebeId), fechaMenu})) {
+            while (cursor.moveToNext()) {
+                intoleranciasEnComun.add(cursor.getString(cursor.getColumnIndex("descripcion")));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return intoleranciasEnComun;
+    }
+
+    public boolean bebeTieneIntolerancia(int bebeId, String descripcionIntolerancia) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT COUNT(*) FROM " + TABLE_INTOLERANCIA + " i " +
+                "JOIN " + TABLE_INTOLERANCIA_COMUN + " ic ON i.intolerancia_comun_id = ic.id " +
+                "WHERE i.bebe_id = ? AND ic.descripcion = ?";
+        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(bebeId), descripcionIntolerancia});
+        cursor.moveToFirst();
+        int count = cursor.getInt(0);
+        cursor.close();
+        return count > 0;
+    }
+
+    public void eliminarIntoleranciasDelBebe(int bebeId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_INTOLERANCIA, "bebe_id = ?", new String[]{String.valueOf(bebeId)});
+    }
+
+    public void insertarIntolerancia(int bebeId, int intoleranciaComunId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("bebe_id", bebeId);
+        values.put("intolerancia_comun_id", intoleranciaComunId);
+        db.insert(TABLE_INTOLERANCIA, null, values);
+    }
+
+    public void actualizarBebe(Bebe bebe) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("nombre", bebe.getNombre());
+        values.put("apellido", bebe.getApellido());
+        values.put("aula", bebe.getAula());
+        db.update(TABLE_BEBE, values, "id = ?", new String[]{String.valueOf(bebe.getId())});
+    }
+
+
+
 }

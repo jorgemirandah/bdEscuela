@@ -1,5 +1,6 @@
 package com.example.bdescuela;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
@@ -51,15 +52,17 @@ public class InsertarBebeDialog extends AppCompatDialogFragment {
                     }
                 });
 
-        buttonInsertar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String nombre = editTextNombre.getText().toString();
-                String apellido = editTextApellido.getText().toString();
-                String aula = spinnerAulas.getSelectedItem().toString();
-                insertarBebe(nombre, apellido, aula);
-                dismiss();
+        buttonInsertar.setOnClickListener(v -> {
+            String nombre = editTextNombre.getText().toString();
+            String apellido = editTextApellido.getText().toString();
+            String aula = null;
+            try {
+                aula = spinnerAulas.getSelectedItem().toString();
+            }catch(Exception e){
+                e.printStackTrace();
             }
+            insertarBebe(nombre, apellido, aula);
+            dismiss();
         });
 
         return builder.create();
@@ -73,7 +76,7 @@ public class InsertarBebeDialog extends AppCompatDialogFragment {
 
         if (cursor.moveToFirst()) {
             do {
-                String nombre = cursor.getString(cursor.getColumnIndex("nombre"));
+                @SuppressLint("Range") String nombre = cursor.getString(cursor.getColumnIndex("nombre"));
                 aulas.add(nombre);
             } while (cursor.moveToNext());
         }
