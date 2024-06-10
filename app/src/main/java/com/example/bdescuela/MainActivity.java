@@ -9,14 +9,11 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.TextView;
 import android.Manifest;
 import android.widget.Toast;
@@ -39,16 +36,13 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements OnBebeClickListener {
     private TextView textViewFecha;
-    private RecyclerView recyclerViewBebes;
     private BebeAdapter bebeAdapter;
     private List<Bebe> bebeList;
     private Calendar calendar;
-    private Button buttonSeleccionarAula, buttonInsertarBebe, btnGuardarAsistencia, btnAgregarMenu;
     private ActivityResultLauncher<Intent> takePictureLauncher;
     private ActivityResultLauncher<String> requestPermissionLauncher;
     private int selectedBebePosition;
     private DatabaseHelper databaseHelper;
-    private SQLiteDatabase db;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,11 +50,11 @@ public class MainActivity extends AppCompatActivity implements OnBebeClickListen
         setContentView(R.layout.activity_main);
         databaseHelper = new DatabaseHelper(this);
         textViewFecha = findViewById(R.id.textViewFecha);
-        recyclerViewBebes = findViewById(R.id.recyclerViewBebes);
-        buttonSeleccionarAula = findViewById(R.id.buttonSeleccionarAula);
-        buttonInsertarBebe = findViewById(R.id.buttonInsertarBebe);
-        btnGuardarAsistencia = findViewById(R.id.btnGuardarAsistencia);
-        btnAgregarMenu = findViewById(R.id.btnAgregarMenu);
+        RecyclerView recyclerViewBebes = findViewById(R.id.recyclerViewBebes);
+        Button buttonSeleccionarAula = findViewById(R.id.buttonSeleccionarAula);
+        Button buttonInsertarBebe = findViewById(R.id.buttonInsertarBebe);
+        Button btnGuardarAsistencia = findViewById(R.id.btnGuardarAsistencia);
+        Button btnAgregarMenu = findViewById(R.id.btnAgregarMenu);
         calendar = Calendar.getInstance();
         bebeList = new ArrayList<>();
         bebeAdapter = new BebeAdapter(bebeList, this, this, textViewFecha.getText().toString());
@@ -68,8 +62,6 @@ public class MainActivity extends AppCompatActivity implements OnBebeClickListen
         recyclerViewBebes.setAdapter(bebeAdapter);
 
         updateDateLabel();
-
-        Log.d("MainActivity", "Fecha pasada al adaptador: " + textViewFecha.getText().toString());
 
         textViewFecha.setOnClickListener(v ->  showDatePickerDialog());
 
@@ -88,6 +80,7 @@ public class MainActivity extends AppCompatActivity implements OnBebeClickListen
                         Intent data = result.getData();
                         if (data != null && data.getExtras() != null) {
                             Bitmap imageBitmap = (Bitmap) data.getExtras().get("data");
+                            assert imageBitmap != null;
                             byte[] imageByteArray = bitmapToByteArray(imageBitmap);
 
                             // Guardar la imagen en la base de datos
@@ -145,7 +138,7 @@ public class MainActivity extends AppCompatActivity implements OnBebeClickListen
             }
         }
 
-        Toast.makeText(this, "Asistencia guardada", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, R.string.asistencia_guardada, Toast.LENGTH_SHORT).show();
         db.close();
     }
 
@@ -159,14 +152,11 @@ public class MainActivity extends AppCompatActivity implements OnBebeClickListen
 
     @Override
     public void onAvatarClick(int position) {
-        selectedBebePosition = position; // Asegúrate de registrar la posición del bebé seleccionado
-        // Verificar si el permiso de la cámara está concedido
+        selectedBebePosition = position;
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
                 == PackageManager.PERMISSION_GRANTED) {
-            // Permiso ya concedido, lanzar la cámara
             launchCamera();
         } else {
-            // Solicitar el permiso de la cámara
             requestPermissionLauncher.launch(Manifest.permission.CAMERA);
         }
     }
@@ -188,7 +178,6 @@ public class MainActivity extends AppCompatActivity implements OnBebeClickListen
         SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
         String fecha = sdf.format(calendar.getTime());
         textViewFecha.setText(fecha);
-        Log.d("MainActivity", "Fecha actualizada: " + fecha);
         actualizarListaBebes();
         actualizarAsistenciaPorFecha(fecha);
 

@@ -6,7 +6,7 @@
     android:padding="16dp">
 
     <LinearLayout
-        android:layout_width="388dp"
+        android:layout_width="699dp"
         android:layout_height="77dp"
         android:orientation="horizontal">
 
@@ -14,13 +14,17 @@
             android:id="@+id/buttonAgregarAula"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/agregar_aula" />
+            android:layout_gravity="center"
+            android:text="@string/agregar_aula"
+            android:layout_marginStart="10dp"/>
 
         <Button
             android:id="@+id/btnSeleccionarTodo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/seleccionar_todas_aulas" />
+            android:layout_gravity="center"
+            android:text="@string/seleccionar_todas_aulas"
+            android:layout_marginStart="10dp"/>
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView

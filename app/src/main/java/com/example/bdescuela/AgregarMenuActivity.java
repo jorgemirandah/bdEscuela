@@ -1,8 +1,6 @@
 package com.example.bdescuela;
 
-import android.content.DialogInterface;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -17,7 +15,6 @@ import java.util.List;
 public class AgregarMenuActivity extends AppCompatActivity {
     private EditText editTextMenu;
     private LinearLayout linearLayoutIntolerancias;
-    private Button buttonAgregarIntolerancia;
 
     private DatabaseHelper dbHelper;
     private String fecha;
@@ -29,7 +26,7 @@ public class AgregarMenuActivity extends AppCompatActivity {
 
         editTextMenu = findViewById(R.id.editTextMenu);
         linearLayoutIntolerancias = findViewById(R.id.linearLayoutIntolerancias);
-        buttonAgregarIntolerancia = findViewById(R.id.buttonAgregarIntolerancia);
+        Button buttonAgregarIntolerancia = findViewById(R.id.buttonAgregarIntolerancia);
         fecha = getIntent().getStringExtra("fecha");
         dbHelper = new DatabaseHelper(this);
 
@@ -48,7 +45,7 @@ public class AgregarMenuActivity extends AppCompatActivity {
     private void cargarIntoleranciasComunes() {
         List<String> intoleranciasComunes = dbHelper.obtenerIntoleranciasComunes();
         if (intoleranciasComunes.isEmpty()) {
-            Toast.makeText(this, "No hay ninguna intolerancia común para agregar", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.no_hay_intolerancia, Toast.LENGTH_LONG).show();
         }
         linearLayoutIntolerancias.removeAllViews();
         for (String intolerancia : intoleranciasComunes) {
@@ -60,7 +57,7 @@ public class AgregarMenuActivity extends AppCompatActivity {
             linearLayout.addView(checkBox);
 
             Button buttonEliminar = new Button(this);
-            buttonEliminar.setText("Eliminar");
+            buttonEliminar.setText(R.string.eliminar);
             buttonEliminar.setOnClickListener(v -> eliminarIntoleranciaComun(intolerancia));
             linearLayout.addView(buttonEliminar);
 
@@ -69,13 +66,13 @@ public class AgregarMenuActivity extends AppCompatActivity {
     }
     private void eliminarIntoleranciaComun(String descripcion) {
         new AlertDialog.Builder(this)
-                .setTitle("Eliminar Intolerancia")
-                .setMessage("¿Estás seguro de que deseas eliminar esta intolerancia?")
-                .setPositiveButton("Sí", (dialog, which) -> {
+                .setTitle(R.string.eliminar_intolerancia)
+                .setMessage(R.string.seguro_eliminar_intolerancia)
+                .setPositiveButton(R.string.si, (dialog, which) -> {
                     dbHelper.eliminarIntoleranciaComun(descripcion);
                     cargarIntoleranciasComunes();
                 })
-                .setNegativeButton("No", null)
+                .setNegativeButton(R.string.no, null)
                 .show();
     }
 
@@ -102,19 +99,16 @@ public class AgregarMenuActivity extends AppCompatActivity {
     private void agregarIntoleranciaComun() {
         EditText input = new EditText(this);
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Agregar Intolerancia");
+        builder.setTitle(R.string.agregar_intolerancia);
         builder.setView(input);
-        builder.setPositiveButton("Agregar", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                String intolerancia = input.getText().toString().trim();
-                if (!intolerancia.isEmpty()) {
-                    dbHelper.insertarIntoleranciaComun(intolerancia);
-                    cargarIntoleranciasComunes();
-                }
+        builder.setPositiveButton(R.string.agregar, (dialog, which) -> {
+            String intolerancia = input.getText().toString().trim();
+            if (!intolerancia.isEmpty()) {
+                dbHelper.insertarIntoleranciaComun(intolerancia);
+                cargarIntoleranciasComunes();
             }
         });
-        builder.setNegativeButton("Cancelar", null);
+        builder.setNegativeButton(R.string.cancelar, null);
         builder.show();
     }
 

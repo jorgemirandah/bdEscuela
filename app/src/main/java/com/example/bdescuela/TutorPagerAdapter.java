@@ -12,8 +12,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 public class TutorPagerAdapter extends RecyclerView.Adapter<TutorPagerAdapter.TutorViewHolder> {
-    private List<Tutor> tutorList;
-    private LayoutInflater inflater;
+    private final List<Tutor> tutorList;
+    private final LayoutInflater inflater;
 
     public TutorPagerAdapter(Context context, List<Tutor> tutorList) {
         this.inflater = LayoutInflater.from(context);
@@ -43,7 +43,7 @@ public class TutorPagerAdapter extends RecyclerView.Adapter<TutorPagerAdapter.Tu
         return tutorList.size();
     }
 
-    class TutorViewHolder extends RecyclerView.ViewHolder {
+    public static class TutorViewHolder extends RecyclerView.ViewHolder {
         EditText editTextNombre;
         EditText editTextApellido;
         EditText editTextTelefono;

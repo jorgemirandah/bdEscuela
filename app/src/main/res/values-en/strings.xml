@@ -34,5 +34,24 @@
     <string name="ver_menu">View Menu</string>
     <string name="tutor">Tutor</string>
     <string name="seleccionar_todas_aulas">Select All Classrooms</string>
+    <string name="nombre_obligatorio">Name is required</string>
+    <string name="no_intolerancias">No common intolerances</string>
+    <string name="aula_obligatoria">The baby must have a classroom. Go to Select Classroom if there is no classroom to choose from</string>
+    <string name="nombre_apellido_obligatorio">A first name or last name is required</string>
+    <string name="eliminar">Delete</string>
+    <string name="no_hay_intolerancia">There are no common intolerances to add</string>
+    <string name="eliminar_intolerancia">Delete Intolerance</string>
+    <string name="seguro_eliminar_intolerancia">Are you sure you want to delete this intolerance?</string>
+    <string name="si">Yes</string>
+    <string name="no">No</string>
+    <string name="confirmar_eliminacion">Confirm deletion</string>
+    <string name="eliminar_aula">Are you sure you want to delete this classroom? All associated babies will also be deleted.</string>
+    <string name="intolerancias_en_comun">Common intolerances: </string>
+    <string name="selecciona_opcion">Select an option</string>
+    <string name="editar">Edit</string>
+    <string name="editar_bebe">Edit Baby</string>
+    <string name="eliminar_bebe">Delete Baby</string>
+    <string name="seguro_eliminar_bebe">Are you sure you want to delete this baby?</string>
+    <string name="asistencia_guardada">Attendance saved</string>
 
 </resources>

@@ -6,8 +6,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -135,11 +133,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-   /* public void eliminarAula(int id) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        db.delete("aula", "id = ?", new String[]{String.valueOf(id)});
-        db.close();
-    }*/
     public int obtenerSiguienteIdAula(){
         SQLiteDatabase db = this.getReadableDatabase();
         String query = "SELECT MAX(id) AS max_id FROM aula";
@@ -169,25 +162,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         cursor.close();
         return bebesAsistentes;
     }
-  /*  @SuppressLint("Range")
-    public Tutor obtenerTutorPorBebeId(int bebeId) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        Tutor tutor = null;
-        Cursor cursor = db.rawQuery("SELECT * FROM tutor WHERE bebe_id = ?", new String[]{String.valueOf(bebeId)});
-        if (cursor.moveToFirst()) {
-            tutor = new Tutor(
-                    cursor.getInt(cursor.getColumnIndex("id")),
-                    cursor.getInt(cursor.getColumnIndex("bebe_id")),
-                    cursor.getString(cursor.getColumnIndex("nombre")),
-                    cursor.getString(cursor.getColumnIndex("apellido")),
-                    cursor.getString(cursor.getColumnIndex("telefono")),
-                    cursor.getString(cursor.getColumnIndex("email")),
-                    cursor.getString(cursor.getColumnIndex("direccion"))
-            );
-        }
-        cursor.close();
-        return tutor;
-    }*/
     @SuppressLint("Range")
     public List<Tutor> obtenerTutoresPorBebeId(int bebeId) {
         List<Tutor> tutorList = new ArrayList<>();
@@ -409,7 +383,4 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put("aula", bebe.getAula());
         db.update(TABLE_BEBE, values, "id = ?", new String[]{String.valueOf(bebe.getId())});
     }
-
-
-
 }

@@ -1,10 +1,10 @@
 package com.example.bdescuela;
 
 public class Aula {
-    private int id;
-    private String nombre;
-    private int capacidad;
-    private int color;
+    private final int id;
+    private final String nombre;
+    private final int capacidad;
+    private final int color;
 
     public Aula(int id, String nombre, int capacidad, int color) {
         this.id = id;
@@ -12,14 +12,6 @@ public class Aula {
         this.capacidad = capacidad;
         this.color = color;
     }
-/*
-    public Aula(String nombre, int capacidad, int color) {
-        this.nombre = nombre;
-        this.capacidad = capacidad;
-        this.color = color;
-    }
-*/
-
     public int getId() {
         return id;
     }

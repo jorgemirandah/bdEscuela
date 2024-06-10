@@ -4,7 +4,6 @@
     <string name="nombre">Nombre</string>
     <string name="aula">Aula</string>
     <string name="seleccionarAula">Seleccionar Aula</string>
-    <string name="insertar_bebe">Insertar Bebe</string>
     <string name="seleccionar_color">Seleccionar Color</string>
     <string name="capacidad">Capacidad</string>
     <string name="agregar">Agregar</string>
@@ -30,13 +29,28 @@
     <string name="seleccionar_intolerancia">Seleccionar intolerancia</string>
     <string name="guardar">Guardar</string>
     <string name="men">Menú</string>
-    <string name="agregar_intolerancia">Agregar Intolerancia</string>
     <string name="ver_menu">Ver menú</string>
     <string name="tutor">Tutor</string>
     <string name="seleccionar_todas_aulas">Seleccionar Todas Aulas</string>
+    <string name="insertar_bebe">Insertar bebé</string>
+    <string name="agregar_intolerancia">Agregar Intolerancia</string>
     <string name="nombre_obligatorio">Es obligatorio poner un nombre</string>
     <string name="no_intolerancias">No hay intolerancias en común</string>
     <string name="aula_obligatoria">Es obligatorio que el bebé tenga un aula. Ves a Seleccionar Aula si no hay ningún aula para elegir</string>
     <string name="nombre_apellido_obligatorio">Es obligatorio poner un nombre o un apellido</string>
-
+    <string name="eliminar">Eliminar</string>
+    <string name="no_hay_intolerancia">No hay ninguna intolerancia común para agregar</string>
+    <string name="eliminar_intolerancia">Eliminar Intolerancia</string>
+    <string name="seguro_eliminar_intolerancia">¿Estás seguro de que deseas eliminar esta intolerancia?</string>
+    <string name="si">Sí</string>
+    <string name="no">No</string>
+    <string name="confirmar_eliminacion">Confirmar eliminación</string>
+    <string name="eliminar_aula">¿Estás seguro de que deseas eliminar este aula? Se eliminarán también todos los bebés asociados.</string>
+    <string name="intolerancias_en_comun">Intolerancias en común: </string>
+    <string name="selecciona_opcion">Selecciona una opción</string>
+    <string name="editar">Editar</string>
+    <string name="editar_bebe">Editar Bebé</string>
+    <string name="eliminar_bebe">Eliminar Bebé</string>
+    <string name="seguro_eliminar_bebe">¿Estás seguro de que deseas eliminar este bebé?</string>
+    <string name="asistencia_guardada">Asistencia guardada</string>
 </resources>

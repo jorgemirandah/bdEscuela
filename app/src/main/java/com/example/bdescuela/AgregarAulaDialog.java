@@ -2,7 +2,6 @@ package com.example.bdescuela;
 
 import android.app.Dialog;
 import android.content.ContentValues;
-import android.content.DialogInterface;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -22,21 +21,20 @@ public class AgregarAulaDialog extends AppCompatDialogFragment {
 
     private EditText editTextNombre, editTextCapacidad;
     private TextView textViewColor;
-    private Button buttonAgregar, buttonSeleccionarColor;
     private int aulaColor = 0xFFFFFF; // Uso el color blanco en caso de que no se ponga otro color
 
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        LayoutInflater inflater = getActivity().getLayoutInflater();
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
+        LayoutInflater inflater = requireActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.dialog_agregar_aula, null);
 
         editTextNombre = view.findViewById(R.id.editTextNombre);
         editTextCapacidad = view.findViewById(R.id.editTextCapacidad);
         textViewColor = view.findViewById(R.id.textViewColor);
-        buttonAgregar = view.findViewById(R.id.buttonAgregar);
-        buttonSeleccionarColor = view.findViewById(R.id.buttonSeleccionarColor);
+        Button buttonAgregar = view.findViewById(R.id.buttonAgregar);
+        Button buttonSeleccionarColor = view.findViewById(R.id.buttonSeleccionarColor);
 
         builder.setView(view)
                 .setTitle(R.string.agregar_aula)
@@ -57,7 +55,7 @@ public class AgregarAulaDialog extends AppCompatDialogFragment {
             try{
                 capacidad = Integer.parseInt(capacidadStr);
             }catch (Exception e){
-
+                e.printStackTrace();
             }
             agregarAula(nombre, capacidad, aulaColor);
             dismiss();
@@ -82,6 +80,7 @@ public class AgregarAulaDialog extends AppCompatDialogFragment {
     }
 
     private void agregarAula(String nombre, int capacidad, int color) {
+
         DatabaseHelper dbHelper = new DatabaseHelper(getContext());
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 

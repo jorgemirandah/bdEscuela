@@ -3,12 +3,12 @@ package com.example.bdescuela;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.BitmapFactory;
-import android.os.Bundle;
+import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,8 +24,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
@@ -33,11 +31,11 @@ import java.util.List;
 
 public class BebeAdapter extends RecyclerView.Adapter<BebeAdapter.BebeViewHolder> {
 
-    private List<Bebe> bebeList;
-    private OnBebeClickListener listener;
-    private Context context;
+    private final List<Bebe> bebeList;
+    private final OnBebeClickListener listener;
+    private final Context context;
     private String fechaActual;
-    private DatabaseHelper dbHelper;
+    private final DatabaseHelper dbHelper;
 
     public BebeAdapter(List<Bebe> bebeList, OnBebeClickListener listener, Context context, String fechaActual) {
         this.bebeList = bebeList;
@@ -59,7 +57,11 @@ public class BebeAdapter extends RecyclerView.Adapter<BebeAdapter.BebeViewHolder
     @Override
     public void onBindViewHolder(@NonNull BebeViewHolder holder, int position) {
         Bebe bebe = bebeList.get(position);
-        holder.textViewNombre.setText(bebe.getNombre() + " " + bebe.getApellido());
+        holder.textViewNombre.setText(bebe.getNombreCompleto());
+
+        String nombreAula = obtenerNombreAula();
+        int colorAula = obtenerColorAulaPorNombre(nombreAula);
+        holder.itemView.setBackgroundColor(colorAula);
         if(bebe.getImagen() != null){
             holder.imageViewAvatar.setImageBitmap(BitmapFactory.decodeByteArray(bebe.getImagen(), 0, bebe.getImagen().length));
         }else{
@@ -88,7 +90,7 @@ public class BebeAdapter extends RecyclerView.Adapter<BebeAdapter.BebeViewHolder
             if (intoleranciasEnComun.isEmpty()) {
                 Toast.makeText(context, context.getString(R.string.no_intolerancias), Toast.LENGTH_SHORT).show();
             } else {
-                StringBuilder intoleranciasStr = new StringBuilder("Intolerancias en común: ");
+                StringBuilder intoleranciasStr = new StringBuilder(R.string.intolerancias_en_comun);
                 for (String intolerancia : intoleranciasEnComun) {
                     intoleranciasStr.append("\n").append(intolerancia);
                 }
@@ -96,12 +98,10 @@ public class BebeAdapter extends RecyclerView.Adapter<BebeAdapter.BebeViewHolder
             }
         });
 
-        // Verificar si el bebé tiene una intolerancia que está en el menú del día
-        Log.d("BebeAdapter", "Verificando intolerancia para bebé: " + bebe.getId() + " en la fecha: " + fechaActual);
         boolean tieneIntoleranciaEnMenu = dbHelper.tieneIntoleranciaEnMenu(fechaActual, bebe.getId());
-        Log.d("BebeAdapter", "Tiene intolerancia: " + tieneIntoleranciaEnMenu);
         holder.imageViewAlerta.setVisibility(tieneIntoleranciaEnMenu ? View.VISIBLE : View.GONE);
     }
+
 
     @Override
     public int getItemCount() {
@@ -110,8 +110,8 @@ public class BebeAdapter extends RecyclerView.Adapter<BebeAdapter.BebeViewHolder
 
     private void showEditOrDeleteDialog(int position) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle("Selecciona una opción")
-                .setItems(new String[]{"Editar", "Eliminar"}, (dialog, which) -> {
+        builder.setTitle(R.string.selecciona_opcion)
+                .setItems(new String[]{String.valueOf(R.string.editar), String.valueOf(R.string.eliminar)}, (dialog, which) -> {
                     if (which == 0) {
                         showEditDialog(position);
                     } else if (which == 1) {
@@ -155,7 +155,7 @@ public class BebeAdapter extends RecyclerView.Adapter<BebeAdapter.BebeViewHolder
         }
 
         new AlertDialog.Builder(context)
-                .setTitle("Editar Bebé")
+                .setTitle(R.string.editar_bebe)
                 .setView(dialogView)
                 .setPositiveButton(android.R.string.ok, (dialog, which) -> {
                     String nuevoNombre = editTextNombre.getText().toString();
@@ -189,8 +189,8 @@ public class BebeAdapter extends RecyclerView.Adapter<BebeAdapter.BebeViewHolder
     }
     private void showDeleteConfirmationDialog(int position) {
         new AlertDialog.Builder(context)
-                .setTitle("Eliminar Bebé")
-                .setMessage("¿Estás seguro de que deseas eliminar este bebé?")
+                .setTitle(R.string.eliminar_bebe)
+                .setMessage(R.string.seguro_eliminar_bebe)
                 .setPositiveButton(android.R.string.yes, (dialog, which) -> {
                     try {
                         Bebe bebe = bebeList.get(position);
@@ -237,5 +237,25 @@ public class BebeAdapter extends RecyclerView.Adapter<BebeAdapter.BebeViewHolder
         db.close();
         return aulas;
     }
+    private String obtenerNombreAula() {
+        SharedPreferences sharedPreferences = context.getSharedPreferences("Preferences", Context.MODE_PRIVATE);
+        return sharedPreferences.getString("nombreAula", null);
+    }
+
+    @SuppressLint("Range")
+    private int obtenerColorAulaPorNombre(String nombreAula) {
+        SQLiteDatabase db = context.openOrCreateDatabase("escuela_infantil.db", Context.MODE_PRIVATE, null);
+        String query = "SELECT color FROM aula WHERE nombre = ?";
+        Cursor cursor = db.rawQuery(query, new String[]{nombreAula});
+        int color = Color.WHITE;
+
+        if (cursor.moveToFirst()) {
+            color = cursor.getInt(cursor.getColumnIndex("color"));
+        }
+        cursor.close();
+        return color;
+    }
+
+
 
 }

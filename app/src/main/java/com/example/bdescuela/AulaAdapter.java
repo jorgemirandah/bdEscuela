@@ -2,11 +2,9 @@ package com.example.bdescuela;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,9 +18,9 @@ import java.util.List;
 
 public class AulaAdapter extends RecyclerView.Adapter<AulaAdapter.AulaViewHolder> {
 
-    private List<Aula> aulaList;
-    private Context context;
-    private DatabaseHelper dbHelper;
+    private final List<Aula> aulaList;
+    private final Context context;
+    private final DatabaseHelper dbHelper;
 
     public AulaAdapter(List<Aula> aulaList, Context context) {
         this.aulaList = aulaList;
@@ -81,10 +79,10 @@ public class AulaAdapter extends RecyclerView.Adapter<AulaAdapter.AulaViewHolder
 
     private void mostrarDialogoConfirmacion(int position) {
         new AlertDialog.Builder(context)
-                .setTitle("Confirmar eliminación")
-                .setMessage("¿Estás seguro de que deseas eliminar este aula? Se eliminarán también todos los bebés asociados.")
-                .setPositiveButton("Sí", (dialog, which) -> eliminarAula(position))
-                .setNegativeButton("No", null)
+                .setTitle(R.string.confirmar_eliminacion)
+                .setMessage(R.string.eliminar_aula)
+                .setPositiveButton(R.string.si, (dialog, which) -> eliminarAula(position))
+                .setNegativeButton(R.string.no, null)
                 .show();
     }
 

@@ -7,7 +7,7 @@
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/viewPager"
-        android:layout_width="match_parent"
+        android:layout_width="699dp"
         android:layout_height="0dp"
         android:layout_weight="1" />
 
@@ -22,13 +22,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/_1_1" />
-    </LinearLayout>
 
-    <Button
-        android:id="@+id/buttonEliminar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:text="@string/eliminar_tutor" />
+        <Button
+            android:id="@+id/buttonEliminar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/eliminar_tutor" />
+    </LinearLayout>
 
 </LinearLayout>

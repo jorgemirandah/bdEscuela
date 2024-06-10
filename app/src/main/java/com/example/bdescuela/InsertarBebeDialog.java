@@ -3,7 +3,6 @@ package com.example.bdescuela;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.ContentValues;
-import android.content.DialogInterface;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -25,8 +24,6 @@ public class InsertarBebeDialog extends AppCompatDialogFragment {
 
     private EditText editTextNombre, editTextApellido;
     private Spinner spinnerAulas;
-    private Button buttonInsertar;
-    private List<String> aulaList;
 
     @NonNull
     @Override
@@ -38,16 +35,16 @@ public class InsertarBebeDialog extends AppCompatDialogFragment {
         editTextNombre = view.findViewById(R.id.editTextNombre);
         editTextApellido = view.findViewById(R.id.editTextApellido);
         spinnerAulas = view.findViewById(R.id.spinnerAulas);
-        buttonInsertar = view.findViewById(R.id.buttonInsertar);
+        Button buttonInsertar = view.findViewById(R.id.buttonInsertar);
 
-        aulaList = getAulasFromDatabase();
+        List<String> aulaList = getAulasFromDatabase();
         ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, aulaList);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerAulas.setAdapter(adapter);
 
         builder.setView(view)
-                .setTitle("Insertar Bebé")
-                .setNegativeButton("Cancelar", (dialog, which) -> {
+                .setTitle(R.string.insertar_bebe)
+                .setNegativeButton(R.string.cancelar, (dialog, which) -> {
                 });
 
         buttonInsertar.setOnClickListener(v -> {
@@ -105,6 +102,7 @@ public class InsertarBebeDialog extends AppCompatDialogFragment {
 
         // Actualizar la lista de bebés en la actividad principal
         MainActivity activity = (MainActivity) getActivity();
+        assert activity != null;
         activity.actualizarListaBebes();
     }
 }

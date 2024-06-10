@@ -1,7 +1,7 @@
 package com.example.bdescuela;
 
 public class Bebe {
-    private int id;
+    private final int id;
     private String nombre;
     private String apellido;
     private String aula;
@@ -56,5 +56,9 @@ public class Bebe {
 
     public void setAsistiendo(boolean asistiendo) {
         this.asistiendo = asistiendo;
+    }
+
+    public String getNombreCompleto(){
+        return getNombre() + " " + getApellido();
     }
 }

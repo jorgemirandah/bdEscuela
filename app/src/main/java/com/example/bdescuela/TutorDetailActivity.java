@@ -10,7 +10,6 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class TutorDetailActivity extends AppCompatActivity {

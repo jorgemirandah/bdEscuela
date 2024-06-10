@@ -5,23 +5,27 @@
 
     <EditText
         android:id="@+id/editTextMenu"
-        android:layout_width="381dp"
-        android:layout_height="91dp"
+        android:layout_width="683dp"
+        android:layout_height="68dp"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="16dp"
         android:hint="@string/men"
         android:inputType="text" />
 
     <LinearLayout
         android:id="@+id/linearLayoutIntolerancias"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="485dp"
+        android:layout_height="311dp"
         android:layout_below="@id/editTextMenu"
-        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="0dp"
         android:orientation="vertical" />
 
     <Button
         android:id="@+id/buttonAgregarIntolerancia"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/linearLayoutIntolerancias"
+        android:layout_below="@id/editTextMenu"
+        android:layout_toEndOf="@id/linearLayoutIntolerancias"
         android:text="@string/agregar_intolerancia" />
 </RelativeLayout>
