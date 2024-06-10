@@ -127,7 +127,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.delete("bebe", "id = ?", new String[]{String.valueOf(id)});
         db.close();
     }
-    public void deleteAula(int id) {
+
+    public void eliminarBebesPorAula(String aula) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete("bebe", "aula = ?", new String[]{aula});
+        db.close();
+    }
+
+    public void eliminarAula(int id) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete("aula", "id = ?", new String[]{String.valueOf(id)});
         db.close();

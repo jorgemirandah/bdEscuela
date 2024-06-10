@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,7 +41,7 @@ public class AulaAdapter extends RecyclerView.Adapter<AulaAdapter.AulaViewHolder
     public void onBindViewHolder(@NonNull AulaViewHolder holder, int position) {
         Aula aula = aulaList.get(position);
         holder.textViewNombre.setText(aula.getNombre());
-        holder.textViewCapacidad.setText("" + aula.getCapacidad());
+        holder.textViewCapacidad.setText(String.valueOf(aula.getCapacidad()));
         holder.itemView.setBackgroundColor(aula.getColor());
 
         holder.itemView.setOnClickListener(v -> guardarNombreAulaEnSharedPreferences(aula.getNombre()));
@@ -81,17 +82,25 @@ public class AulaAdapter extends RecyclerView.Adapter<AulaAdapter.AulaViewHolder
     private void mostrarDialogoConfirmacion(int position) {
         new AlertDialog.Builder(context)
                 .setTitle("Confirmar eliminación")
-                .setMessage("¿Estás seguro de que deseas eliminar este aula?")
+                .setMessage("¿Estás seguro de que deseas eliminar este aula? Se eliminarán también todos los bebés asociados.")
                 .setPositiveButton("Sí", (dialog, which) -> eliminarAula(position))
                 .setNegativeButton("No", null)
                 .show();
     }
 
+    //Se elimina el aula y los bebés asociados
     private void eliminarAula(int position) {
         Aula aula = aulaList.get(position);
-        dbHelper.deleteAula(aula.getId());
+        String nombreAula = aula.getNombre();
+
+        dbHelper.eliminarBebesPorAula(nombreAula);
+
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        db.delete("aula", "nombre = ?", new String[]{nombreAula});
+        db.close();
+
         aulaList.remove(position);
         notifyItemRemoved(position);
-        Toast.makeText(context, "Aula eliminada: " + aula.getNombre(), Toast.LENGTH_SHORT).show();
     }
+
 }
