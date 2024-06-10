@@ -1,20 +1,25 @@
 package com.example.bdescuela;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,6 +28,7 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class BebeAdapter extends RecyclerView.Adapter<BebeAdapter.BebeViewHolder> {
@@ -121,23 +127,28 @@ public class BebeAdapter extends RecyclerView.Adapter<BebeAdapter.BebeViewHolder
         View dialogView = inflater.inflate(R.layout.dialog_edit_bebe, null);
         EditText editTextNombre = dialogView.findViewById(R.id.editTextNombre);
         EditText editTextApellido = dialogView.findViewById(R.id.editTextApellido);
-        EditText editTextAula = dialogView.findViewById(R.id.editTextAula);
+        Spinner spinnerAulas = dialogView.findViewById(R.id.spinnerAulas);
         LinearLayout checkboxContainer = dialogView.findViewById(R.id.checkboxContainer);
 
         editTextNombre.setText(bebe.getNombre());
         editTextApellido.setText(bebe.getApellido());
-        editTextAula.setText(bebe.getAula());
+        List<String> aulaList = getAulasFromDatabase();
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(context, android.R.layout.simple_spinner_item, aulaList);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerAulas.setAdapter(adapter);
+        int aulaPosition = aulaList.indexOf(bebe.getAula());
+        if (aulaPosition >= 0) {
+            spinnerAulas.setSelection(aulaPosition);
+        }
 
-        // Obtener las intolerancias comunes de la base de datos
+        // Se ponen todas las intolerancias de la bd en checkbox, con true o false según la bd
         List<String> intoleranciasComunes = dbHelper.obtenerIntoleranciasComunes();
 
-        // Crear dinámicamente los checkboxes para las intolerancias comunes
         for (String intolerancia : intoleranciasComunes) {
             CheckBox checkBox = new CheckBox(context);
             checkBox.setText(intolerancia);
             checkboxContainer.addView(checkBox);
 
-            // Marcar los checkboxes que el bebé ya tiene
             if (dbHelper.bebeTieneIntolerancia(bebe.getId(), intolerancia)) {
                 checkBox.setChecked(true);
             }
@@ -149,14 +160,14 @@ public class BebeAdapter extends RecyclerView.Adapter<BebeAdapter.BebeViewHolder
                 .setPositiveButton(android.R.string.ok, (dialog, which) -> {
                     String nuevoNombre = editTextNombre.getText().toString();
                     String nuevoApellido = editTextApellido.getText().toString();
-                    String nuevoAula = editTextAula.getText().toString();
+                    String nuevoAula = spinnerAulas.getSelectedItem().toString();
 
                     bebe.setNombre(nuevoNombre);
                     bebe.setApellido(nuevoApellido);
                     bebe.setAula(nuevoAula);
                     dbHelper.actualizarBebe(bebe);
 
-                    // Actualizar las intolerancias del bebé en la base de datos
+                    // Se actualizan las intolerancias
                     dbHelper.eliminarIntoleranciasDelBebe(bebe.getId());
 
                     for (int i = 0; i < checkboxContainer.getChildCount(); i++) {
@@ -206,4 +217,21 @@ public class BebeAdapter extends RecyclerView.Adapter<BebeAdapter.BebeViewHolder
             imageViewAlerta = itemView.findViewById(R.id.imageViewAlerta);
         }
     }
+
+    private List<String> getAulasFromDatabase() {
+        List<String> aulas = new ArrayList<>();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Cursor cursor = db.query("aula", new String[]{"nombre"}, null, null, null, null, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                @SuppressLint("Range") String nombre = cursor.getString(cursor.getColumnIndex("nombre"));
+                aulas.add(nombre);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.close();
+        return aulas;
+    }
+
 }

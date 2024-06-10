@@ -13,6 +13,8 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDialogFragment;
@@ -45,11 +47,7 @@ public class InsertarBebeDialog extends AppCompatDialogFragment {
 
         builder.setView(view)
                 .setTitle("Insertar Bebé")
-                .setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // Acción al cancelar
-                    }
+                .setNegativeButton("Cancelar", (dialog, which) -> {
                 });
 
         buttonInsertar.setOnClickListener(v -> {
@@ -58,11 +56,22 @@ public class InsertarBebeDialog extends AppCompatDialogFragment {
             String aula = null;
             try {
                 aula = spinnerAulas.getSelectedItem().toString();
-            }catch(Exception e){
+            } catch(Exception e) {
                 e.printStackTrace();
             }
-            insertarBebe(nombre, apellido, aula);
-            dismiss();
+            if(nombre.isEmpty() && apellido.isEmpty()){
+                Toast.makeText(getContext(), R.string.nombre_apellido_obligatorio, Toast.LENGTH_SHORT).show();
+            }else{
+                insertarBebe(nombre, apellido, aula);
+                dismiss();
+            }
+
+            if (aula == null || aula.isEmpty()) {
+                Toast.makeText(getContext(), R.string.aula_obligatoria, Toast.LENGTH_LONG).show();
+            } else {
+                insertarBebe(nombre, apellido, aula);
+                dismiss();
+            }
         });
 
         return builder.create();

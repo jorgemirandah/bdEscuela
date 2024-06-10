@@ -17,11 +17,10 @@
         android:layout_height="wrap_content"
         android:hint="@string/apellido" />
 
-    <EditText
-        android:id="@+id/editTextAula"
+    <Spinner
+        android:id="@+id/spinnerAulas"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/aula" />
+        android:layout_height="wrap_content" />
 
     <LinearLayout
         android:id="@+id/checkboxContainer"

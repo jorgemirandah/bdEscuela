@@ -36,4 +36,7 @@
     <string name="seleccionar_todas_aulas">Seleccionar Todas Aulas</string>
     <string name="nombre_obligatorio">Es obligatorio poner un nombre</string>
     <string name="no_intolerancias">No hay intolerancias en común</string>
+    <string name="aula_obligatoria">Es obligatorio que el bebé tenga un aula. Ves a Seleccionar Aula si no hay ningún aula para elegir</string>
+    <string name="nombre_apellido_obligatorio">Es obligatorio poner un nombre o un apellido</string>
+
 </resources>

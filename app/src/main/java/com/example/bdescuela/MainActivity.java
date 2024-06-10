@@ -235,7 +235,7 @@ public class MainActivity extends AppCompatActivity implements OnBebeClickListen
         String selection = null;
         String[] selectionArgs = null;
 
-        // Si se ha seleccionado un aula, ajustar la consulta
+        // Si nombreAula es null se seleccionan de todas las aulas, si no del aula seleccionada
         if (nombreAula != null) {
             selection = "aula = ?";
             selectionArgs = new String[]{nombreAula};
