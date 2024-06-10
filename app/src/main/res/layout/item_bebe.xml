@@ -25,7 +25,7 @@
             android:id="@+id/textViewNombre"
             android:layout_width="177dp"
             android:layout_height="43dp"
-            android:text="Nombre Apellido"
+            android:text=""
             android:textSize="16sp" />
 
         <CheckBox
