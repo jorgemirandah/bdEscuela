@@ -7,19 +7,19 @@ public class Tutor {
     private String apellido;
     private String telefono;
     private String email;
-    private String direccion;
+    private String movil;
 
     public Tutor() {
     }
 
-    public Tutor(int id, int bebeId, String nombre, String apellido, String telefono, String email, String direccion) {
+    public Tutor(int id, int bebeId, String nombre, String apellido, String telefono, String email, String movil) {
         this.id = id;
         this.bebeId = bebeId;
         this.nombre = nombre;
         this.apellido = apellido;
         this.telefono = telefono;
         this.email = email;
-        this.direccion = direccion;
+        this.movil = movil;
     }
 
     public int getId() {
@@ -70,12 +70,12 @@ public class Tutor {
         this.email = email;
     }
 
-    public String getDireccion() {
-        return direccion;
+    public String getMovil() {
+        return movil;
     }
 
-    public void setDireccion(String direccion) {
-        this.direccion = direccion;
+    public void setMovil(String movil) {
+        this.movil = movil;
     }
 
     public boolean isEmpty() {
@@ -83,7 +83,7 @@ public class Tutor {
                 (apellido == null || apellido.isEmpty()) &&
                 (telefono == null || telefono.isEmpty()) &&
                 (email == null || email.isEmpty()) &&
-                (direccion == null || direccion.isEmpty());
+                (movil == null || movil.isEmpty());
     }
 
 }

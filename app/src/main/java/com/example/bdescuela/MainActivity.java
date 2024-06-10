@@ -10,9 +10,13 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.Manifest;
@@ -21,20 +25,29 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements OnBebeClickListener {
+    private static final int REQUEST_CODE_PICK_FILE = 1;
     private TextView textViewFecha;
     private BebeAdapter bebeAdapter;
     private List<Bebe> bebeList;
@@ -43,6 +56,9 @@ public class MainActivity extends AppCompatActivity implements OnBebeClickListen
     private ActivityResultLauncher<String> requestPermissionLauncher;
     private int selectedBebePosition;
     private DatabaseHelper databaseHelper;
+    private static final int PERMISSION_REQUEST_CODE = 1;
+    private ActivityResultLauncher<String> filePickerLauncher;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,6 +71,23 @@ public class MainActivity extends AppCompatActivity implements OnBebeClickListen
         Button buttonInsertarBebe = findViewById(R.id.buttonInsertarBebe);
         Button btnGuardarAsistencia = findViewById(R.id.btnGuardarAsistencia);
         Button btnAgregarMenu = findViewById(R.id.btnAgregarMenu);
+        filePickerLauncher = registerForActivityResult(
+                new ActivityResultContracts.GetContent(),
+                uri -> {
+                    if (uri != null) {
+                        try {
+                            importNinosFromCSV(uri);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                }
+        );
+        requestPermissions();
+
+        Button btnImportar = findViewById(R.id.btnImportar);
+        btnImportar.setOnClickListener(v -> filePickerLauncher.launch("text/csv"));
+
         calendar = Calendar.getInstance();
         bebeList = new ArrayList<>();
         bebeAdapter = new BebeAdapter(bebeList, this, this, textViewFecha.getText().toString());
@@ -71,7 +104,6 @@ public class MainActivity extends AppCompatActivity implements OnBebeClickListen
         });
 
         buttonInsertarBebe.setOnClickListener(v -> showInsertarBebeDialog());
-
 
         takePictureLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -108,6 +140,102 @@ public class MainActivity extends AppCompatActivity implements OnBebeClickListen
         btnGuardarAsistencia.setOnClickListener(v -> guardarAsistencia());
         btnAgregarMenu.setOnClickListener(v -> agregarMenu());
     }
+    private String getPathFromUri(Uri uri) {
+        String filePath = null;
+        String[] projection = {MediaStore.Files.FileColumns.DATA};
+        Cursor cursor = getContentResolver().query(uri, projection, null, null, null);
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                filePath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATA));
+            }
+            cursor.close();
+        }
+        return filePath;
+    }
+    private void requestPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED ||
+                    ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_VIDEO) != PackageManager.PERMISSION_GRANTED ||
+                    ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+
+                ActivityCompat.requestPermissions(this, new String[]{
+                        Manifest.permission.READ_MEDIA_IMAGES,
+                        Manifest.permission.READ_MEDIA_VIDEO,
+                        Manifest.permission.READ_MEDIA_AUDIO}, PERMISSION_REQUEST_CODE);
+            }
+        } else {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE);
+            }
+        }
+    }
+
+    public void importNinosFromCSV(Uri uri) throws IOException {
+        SQLiteDatabase db = databaseHelper.getWritableDatabase();
+
+        String sqlBebe = "INSERT INTO bebe (nombre, apellido, aula) VALUES (?, ?, ?)";
+        String sqlTutorPadre = "INSERT INTO tutor (bebe_id, nombre, movil, telefono, email) VALUES (?, ?, ?, ?, ?)";
+        String sqlTutorMadre = "INSERT INTO tutor (bebe_id, nombre, movil, telefono, email) VALUES (?, ?, ?, ?, ?)";
+        String sqlAula = "INSERT INTO aula (nombre) VALUES (?)";
+
+        try (InputStream inputStream = getContentResolver().openInputStream(uri);
+             BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
+            String line;
+            br.readLine(); // Skip header row
+            while ((line = br.readLine()) != null) {
+                String[] values = line.split(",");
+
+                // Ensure the values array has exactly 11 elements
+                values = ensureCorrectColumnLength(values, 11);
+
+                if (values.length == 11) {
+                    // Check if aula exists
+                    Cursor cursor = db.rawQuery("SELECT id FROM aula WHERE nombre = ?", new String[]{values[3]});
+                    long aulaId;
+                    if (cursor.moveToFirst()) {
+                        aulaId = cursor.getLong(0);
+                    } else {
+                        db.execSQL(sqlAula, new String[]{values[3]});
+                        aulaId = db.compileStatement("SELECT last_insert_rowid()").simpleQueryForLong();
+                    }
+                    cursor.close();
+
+                    // Insert bebe
+                    db.execSQL(sqlBebe, new Object[]{values[1], values[2], aulaId});
+                    long bebeId = db.compileStatement("SELECT last_insert_rowid()").simpleQueryForLong();
+
+                    // Insert tutor padre
+                    db.execSQL(sqlTutorPadre, new Object[]{bebeId, values[4], values[5], values[6], values[10]});
+
+                    // Insert tutor madre
+                    db.execSQL(sqlTutorMadre, new Object[]{bebeId, values[7], values[8], values[9], values[10]});
+                } else {
+                    // Handle the case where the number of columns is not as expected
+                    Log.w("CSVImport", "Fila con columnas insuficientes: " + Arrays.toString(values));
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            db.close();
+        }
+    }
+
+    private String[] ensureCorrectColumnLength(String[] values, int expectedLength) {
+        if (values.length < expectedLength) {
+            String[] newValues = new String[expectedLength];
+            System.arraycopy(values, 0, newValues, 0, values.length);
+            for (int i = values.length; i < expectedLength; i++) {
+                newValues[i] = "";
+            }
+            return newValues;
+        } else if (values.length > expectedLength) {
+            return Arrays.copyOfRange(values, 0, expectedLength);
+        } else {
+            return values;
+        }
+    }
+
 
     private void agregarMenu() {
         String fecha = textViewFecha.getText().toString();

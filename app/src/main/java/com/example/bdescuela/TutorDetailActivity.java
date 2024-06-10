@@ -91,13 +91,13 @@ public class TutorDetailActivity extends AppCompatActivity {
                 EditText editTextApellido = view.findViewById(R.id.editTextApellido);
                 EditText editTextTelefono = view.findViewById(R.id.editTextTelefono);
                 EditText editTextEmail = view.findViewById(R.id.editTextEmail);
-                EditText editTextDireccion = view.findViewById(R.id.editTextDireccion);
+                EditText editTextMovil = view.findViewById(R.id.editTextMovil);
 
                 tutor.setNombre(editTextNombre.getText().toString());
                 tutor.setApellido(editTextApellido.getText().toString());
                 tutor.setTelefono(editTextTelefono.getText().toString());
                 tutor.setEmail(editTextEmail.getText().toString());
-                tutor.setDireccion(editTextDireccion.getText().toString());
+                tutor.setMovil(editTextMovil.getText().toString());
 
                 dbHelper.guardarTutor(tutor);
             }

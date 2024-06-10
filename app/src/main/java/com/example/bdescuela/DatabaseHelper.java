@@ -1,18 +1,28 @@
 package com.example.bdescuela;
 
 import android.annotation.SuppressLint;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.net.Uri;
+import android.provider.MediaStore;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
+    private Context context;
 
     private static final String DATABASE_NAME = "escuela_infantil.db";
-    private static final int DATABASE_VERSION = 9;
+    private static final int DATABASE_VERSION = 11;
     private static final String TABLE_BEBE = "bebe";
     private static final String TABLE_ASISTENCIA = "asistencia";
     private static final String TABLE_TUTOR = "tutor";
@@ -22,8 +32,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String TABLE_INTOLERANCIA_COMUN = "intolerancia_comun";
     private static final String TABLE_MENU_INTOLERANCIA_COMUN = "menu_intolerancia_comun";
 
-
-    // Sentencias para crear las tablas
     private static final String CREATE_TABLE_BEBE = "CREATE TABLE " + TABLE_BEBE + " (" +
             "id INTEGER PRIMARY KEY AUTOINCREMENT," +
             "nombre TEXT NOT NULL," +
@@ -36,8 +44,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             "id INTEGER PRIMARY KEY AUTOINCREMENT," +
             "bebe_id INTEGER NOT NULL," +
             "fecha DATE NOT NULL," +
-            "hora_entrada TIME NOT NULL," +
-            "hora_salida TIME," +
             "FOREIGN KEY (bebe_id) REFERENCES bebe(id)" +
             ");";
 
@@ -46,17 +52,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             "bebe_id INTEGER NOT NULL," +
             "nombre TEXT," +
             "apellido TEXT," +
+            "movil TEXT," +
             "telefono TEXT," +
             "email TEXT," +
-            "direccion TEXT," +
             "FOREIGN KEY (bebe_id) REFERENCES bebe(id)" +
             ");";
 
     private static final String CREATE_TABLE_AULA = "CREATE TABLE " + TABLE_AULA + " (" +
             "id INTEGER PRIMARY KEY AUTOINCREMENT," +
             "nombre TEXT NOT NULL," +
-            "capacidad INTEGER NOT NULL," +
-            "color INTEGER NOT NULL" +
+            "capacidad INTEGER," +
+            "color INTEGER" +
             ");";
 
     private static final String CREATE_TABLE_MENU = "CREATE TABLE " + TABLE_MENU + " (" +
@@ -88,6 +94,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        this.context = context;
     }
 
     @Override
@@ -176,7 +183,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         cursor.getString(cursor.getColumnIndex("apellido")),
                         cursor.getString(cursor.getColumnIndex("telefono")),
                         cursor.getString(cursor.getColumnIndex("email")),
-                        cursor.getString(cursor.getColumnIndex("direccion"))
+                        cursor.getString(cursor.getColumnIndex("movil"))
                 );
                 tutorList.add(tutor);
             } while (cursor.moveToNext());
@@ -194,7 +201,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put("apellido", tutor.getApellido());
         values.put("telefono", tutor.getTelefono());
         values.put("email", tutor.getEmail());
-        values.put("direccion", tutor.getDireccion());
+        values.put("movil", tutor.getMovil());
 
         if (tutor.getId() == 0) {
             long id = db.insert("tutor", null, values);
@@ -383,4 +390,50 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put("aula", bebe.getAula());
         db.update(TABLE_BEBE, values, "id = ?", new String[]{String.valueOf(bebe.getId())});
     }
+
+    public void importNinosFromCSV(String csvFilePath) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        String sqlBebe = "INSERT INTO bebe (nombre, apellido, aula) VALUES (?, ?, ?)";
+        String sqlTutorPadre = "INSERT INTO tutor (bebe_id, nombre, apellido, telefono) VALUES (?, ?, ?, ?)";
+        String sqlTutorMadre = "INSERT INTO tutor (bebe_id, nombre, apellido, telefono) VALUES (?, ?, ?, ?)";
+        String sqlAula = "INSERT INTO aula (nombre) VALUES (?)";
+
+        Uri contentUri = MediaStore.Files.getContentUri("external");
+        String[] projection = {MediaStore.Files.FileColumns._ID, MediaStore.Files.FileColumns.DISPLAY_NAME};
+        String selection = MediaStore.Files.FileColumns.DISPLAY_NAME + "=?";
+        String[] selectionArgs = new String[]{"ninos.csv"};
+
+        try (Cursor cursor = context.getContentResolver().query(contentUri, projection, selection, selectionArgs, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                long id = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns._ID));
+                Uri uri = ContentUris.withAppendedId(contentUri, id);
+
+                try (InputStream inputStream = context.getContentResolver().openInputStream(uri);
+                     BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
+                    String line;
+                    br.readLine(); // Skip header row
+                    while ((line = br.readLine()) != null) {
+                        String[] values = line.split(",");
+
+                        db.execSQL(sqlBebe, new String[]{values[1], values[2], values[3]});
+
+                        long bebeId = db.compileStatement("SELECT last_insert_rowid()").simpleQueryForLong();
+
+                        db.execSQL(sqlTutorPadre, new Object[]{bebeId, values[4], values[5], values[6]});
+                        db.execSQL(sqlTutorMadre, new Object[]{bebeId, values[8], values[9], values[10]});
+
+                        if (values[3] != null && !values[3].isEmpty()) {
+                            db.execSQL(sqlAula, new String[]{values[3]});
+                        }
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            db.close();
+        }
+    }
+
 }

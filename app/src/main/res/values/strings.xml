@@ -53,4 +53,5 @@
     <string name="eliminar_bebe">Eliminar Bebé</string>
     <string name="seguro_eliminar_bebe">¿Estás seguro de que deseas eliminar este bebé?</string>
     <string name="asistencia_guardada">Asistencia guardada</string>
+    <string name="movil">Movil</string>
 </resources>

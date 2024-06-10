@@ -111,7 +111,7 @@ public class BebeAdapter extends RecyclerView.Adapter<BebeAdapter.BebeViewHolder
     private void showEditOrDeleteDialog(int position) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(R.string.selecciona_opcion)
-                .setItems(new String[]{String.valueOf(R.string.editar), String.valueOf(R.string.eliminar)}, (dialog, which) -> {
+                .setItems(new String[]{context.getString(R.string.editar), context.getString(R.string.eliminar)}, (dialog, which) -> {
                     if (which == 0) {
                         showEditDialog(position);
                     } else if (which == 1) {
@@ -246,14 +246,21 @@ public class BebeAdapter extends RecyclerView.Adapter<BebeAdapter.BebeViewHolder
     private int obtenerColorAulaPorNombre(String nombreAula) {
         SQLiteDatabase db = context.openOrCreateDatabase("escuela_infantil.db", Context.MODE_PRIVATE, null);
         String query = "SELECT color FROM aula WHERE nombre = ?";
-        Cursor cursor = db.rawQuery(query, new String[]{nombreAula});
-        int color = Color.WHITE;
 
-        if (cursor.moveToFirst()) {
-            color = cursor.getInt(cursor.getColumnIndex("color"));
+        try{
+            Cursor cursor = db.rawQuery(query, new String[]{nombreAula});
+            int color = Color.WHITE;
+
+            if (cursor.moveToFirst()) {
+                color = cursor.getInt(cursor.getColumnIndex("color"));
+            }
+            cursor.close();
+            return color;
+
+        }catch (Exception e){
+            e.printStackTrace();
         }
-        cursor.close();
-        return color;
+        return Color.WHITE;
     }
 
 

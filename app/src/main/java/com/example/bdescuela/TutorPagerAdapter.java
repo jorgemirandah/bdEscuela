@@ -34,7 +34,7 @@ public class TutorPagerAdapter extends RecyclerView.Adapter<TutorPagerAdapter.Tu
         holder.editTextApellido.setText(tutor.getApellido());
         holder.editTextTelefono.setText(tutor.getTelefono());
         holder.editTextEmail.setText(tutor.getEmail());
-        holder.editTextDireccion.setText(tutor.getDireccion());
+        holder.editTextMovil.setText(tutor.getMovil());
         holder.itemView.setTag("view" + position);
     }
 
@@ -48,7 +48,7 @@ public class TutorPagerAdapter extends RecyclerView.Adapter<TutorPagerAdapter.Tu
         EditText editTextApellido;
         EditText editTextTelefono;
         EditText editTextEmail;
-        EditText editTextDireccion;
+        EditText editTextMovil;
 
         public TutorViewHolder(View itemView) {
             super(itemView);
@@ -56,7 +56,7 @@ public class TutorPagerAdapter extends RecyclerView.Adapter<TutorPagerAdapter.Tu
             editTextApellido = itemView.findViewById(R.id.editTextApellido);
             editTextTelefono = itemView.findViewById(R.id.editTextTelefono);
             editTextEmail = itemView.findViewById(R.id.editTextEmail);
-            editTextDireccion = itemView.findViewById(R.id.editTextDireccion);
+            editTextMovil = itemView.findViewById(R.id.editTextMovil);
         }
     }
 }
