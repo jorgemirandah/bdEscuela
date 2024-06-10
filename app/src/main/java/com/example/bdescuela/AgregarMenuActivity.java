@@ -52,10 +52,31 @@ public class AgregarMenuActivity extends AppCompatActivity {
         }
         linearLayoutIntolerancias.removeAllViews();
         for (String intolerancia : intoleranciasComunes) {
+            LinearLayout linearLayout = new LinearLayout(this);
+            linearLayout.setOrientation(LinearLayout.HORIZONTAL);
+
             CheckBox checkBox = new CheckBox(this);
             checkBox.setText(intolerancia);
-            linearLayoutIntolerancias.addView(checkBox);
+            linearLayout.addView(checkBox);
+
+            Button buttonEliminar = new Button(this);
+            buttonEliminar.setText("Eliminar");
+            buttonEliminar.setOnClickListener(v -> eliminarIntoleranciaComun(intolerancia));
+            linearLayout.addView(buttonEliminar);
+
+            linearLayoutIntolerancias.addView(linearLayout);
         }
+    }
+    private void eliminarIntoleranciaComun(String descripcion) {
+        new AlertDialog.Builder(this)
+                .setTitle("Eliminar Intolerancia")
+                .setMessage("¿Estás seguro de que deseas eliminar esta intolerancia?")
+                .setPositiveButton("Sí", (dialog, which) -> {
+                    dbHelper.eliminarIntoleranciaComun(descripcion);
+                    cargarIntoleranciasComunes();
+                })
+                .setNegativeButton("No", null)
+                .show();
     }
 
     private void cargarMenuSiExiste() {
@@ -68,7 +89,8 @@ public class AgregarMenuActivity extends AppCompatActivity {
             for (int intoleranciaId : intoleranciasIds) {
                 String descripcion = dbHelper.obtenerIntoleranciaComunDescripcionPorId(intoleranciaId);
                 for (int i = 0; i < linearLayoutIntolerancias.getChildCount(); i++) {
-                    CheckBox checkBox = (CheckBox) linearLayoutIntolerancias.getChildAt(i);
+                    LinearLayout linearLayout = (LinearLayout) linearLayoutIntolerancias.getChildAt(i);
+                    CheckBox checkBox = (CheckBox) linearLayout.getChildAt(0);
                     if (checkBox.getText().toString().equals(descripcion)) {
                         checkBox.setChecked(true);
                     }
@@ -98,10 +120,11 @@ public class AgregarMenuActivity extends AppCompatActivity {
 
     private void guardarMenu() {
         String menu = editTextMenu.getText().toString().trim();
-        //Se mira que se haya seleccionado intolerancias o se haya puesto descripción para insertarlo
+        // Se mira que se haya seleccionado intolerancias o se haya puesto descripción para insertarlo
         boolean hasIntoleranciasSeleccionadas = false;
         for (int i = 0; i < linearLayoutIntolerancias.getChildCount(); i++) {
-            CheckBox checkBox = (CheckBox) linearLayoutIntolerancias.getChildAt(i);
+            LinearLayout linearLayout = (LinearLayout) linearLayoutIntolerancias.getChildAt(i);
+            CheckBox checkBox = (CheckBox) linearLayout.getChildAt(0);
             if (checkBox.isChecked()) {
                 hasIntoleranciasSeleccionadas = true;
                 break;
@@ -121,7 +144,8 @@ public class AgregarMenuActivity extends AppCompatActivity {
 
         // Guardar las intolerancias seleccionadas
         for (int i = 0; i < linearLayoutIntolerancias.getChildCount(); i++) {
-            CheckBox checkBox = (CheckBox) linearLayoutIntolerancias.getChildAt(i);
+            LinearLayout linearLayout = (LinearLayout) linearLayoutIntolerancias.getChildAt(i);
+            CheckBox checkBox = (CheckBox) linearLayout.getChildAt(0);
             if (checkBox.isChecked()) {
                 String intolerancia = checkBox.getText().toString();
                 int intoleranciaId = dbHelper.obtenerIntoleranciaComunId(intolerancia);

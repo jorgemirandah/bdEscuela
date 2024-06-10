@@ -59,19 +59,17 @@ public class InsertarBebeDialog extends AppCompatDialogFragment {
             } catch(Exception e) {
                 e.printStackTrace();
             }
-            if(nombre.isEmpty() && apellido.isEmpty()){
-                Toast.makeText(getContext(), R.string.nombre_apellido_obligatorio, Toast.LENGTH_SHORT).show();
+            if(nombre.isEmpty() && apellido.isEmpty() || aula == null){
+                if(nombre.isEmpty() && apellido.isEmpty()){
+                    Toast.makeText(getContext(), R.string.nombre_apellido_obligatorio, Toast.LENGTH_SHORT).show();
+                }else{
+                    Toast.makeText(getContext(), R.string.aula_obligatoria, Toast.LENGTH_LONG).show();
+                }
             }else{
                 insertarBebe(nombre, apellido, aula);
                 dismiss();
             }
 
-            if (aula == null || aula.isEmpty()) {
-                Toast.makeText(getContext(), R.string.aula_obligatoria, Toast.LENGTH_LONG).show();
-            } else {
-                insertarBebe(nombre, apellido, aula);
-                dismiss();
-            }
         });
 
         return builder.create();

@@ -192,10 +192,14 @@ public class BebeAdapter extends RecyclerView.Adapter<BebeAdapter.BebeViewHolder
                 .setTitle("Eliminar Bebé")
                 .setMessage("¿Estás seguro de que deseas eliminar este bebé?")
                 .setPositiveButton(android.R.string.yes, (dialog, which) -> {
-                    Bebe bebe = bebeList.get(position);
-                    dbHelper.deleteBebe(bebe.getId());
-                    bebeList.remove(position);
-                    notifyItemRemoved(position);
+                    try {
+                        Bebe bebe = bebeList.get(position);
+                        dbHelper.deleteBebe(bebe.getId());
+                        bebeList.remove(position);
+                        notifyItemRemoved(position);
+                    }catch(Exception e){
+                        e.printStackTrace();
+                    }
                 })
                 .setNegativeButton(android.R.string.no, null)
                 .show();

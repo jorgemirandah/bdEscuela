@@ -14,7 +14,7 @@ import java.util.List;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "escuela_infantil.db";
-    private static final int DATABASE_VERSION = 7;
+    private static final int DATABASE_VERSION = 9;
     private static final String TABLE_BEBE = "bebe";
     private static final String TABLE_ASISTENCIA = "asistencia";
     private static final String TABLE_TUTOR = "tutor";
@@ -67,11 +67,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             "descripcion TEXT" +
             ");";
 
-    private static final String CREATE_TABLE_MENU_INTOLERANCIA_COMUN = "CREATE TABLE " + TABLE_MENU_INTOLERANCIA_COMUN +"(" +
+    private static final String CREATE_TABLE_MENU_INTOLERANCIA_COMUN = "CREATE TABLE " + TABLE_MENU_INTOLERANCIA_COMUN + " (" +
             "menu_id INTEGER NOT NULL," +
             "intolerancia_comun_id INTEGER NOT NULL," +
-            "FOREIGN KEY (menu_id) REFERENCES menu(id)," +
-            "FOREIGN KEY (intolerancia_comun_id) REFERENCES intolerancias_comunes(id)" +
+            "FOREIGN KEY (menu_id) REFERENCES " + TABLE_MENU + "(id)," +
+            "FOREIGN KEY (intolerancia_comun_id) REFERENCES " + TABLE_INTOLERANCIA_COMUN + "(id)" +
             ");";
 
     private static final String CREATE_TABLE_INTOLERANCIA = "CREATE TABLE " + TABLE_INTOLERANCIA + " (" +
@@ -79,13 +79,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             "bebe_id INTEGER NOT NULL," +
             "intolerancia_comun_id INTEGER NOT NULL," +
             "FOREIGN KEY (bebe_id) REFERENCES bebe(id)," +
-            "FOREIGN KEY (intolerancia_comun_id) REFERENCES intolerancias_comunes(id)" +
+            "FOREIGN KEY (intolerancia_comun_id) REFERENCES " + TABLE_INTOLERANCIA_COMUN + "(id)" +
             ");";
 
     private static final String CREATE_TABLE_INTOLERANCIA_COMUN = "CREATE TABLE " + TABLE_INTOLERANCIA_COMUN + " (" +
             "id INTEGER PRIMARY KEY AUTOINCREMENT," +
             "descripcion TEXT NOT NULL" +
             ");";
+
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -134,11 +135,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    public void eliminarAula(int id) {
+   /* public void eliminarAula(int id) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete("aula", "id = ?", new String[]{String.valueOf(id)});
         db.close();
-    }
+    }*/
     public int obtenerSiguienteIdAula(){
         SQLiteDatabase db = this.getReadableDatabase();
         String query = "SELECT MAX(id) AS max_id FROM aula";
@@ -168,7 +169,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         cursor.close();
         return bebesAsistentes;
     }
-    @SuppressLint("Range")
+  /*  @SuppressLint("Range")
     public Tutor obtenerTutorPorBebeId(int bebeId) {
         SQLiteDatabase db = this.getReadableDatabase();
         Tutor tutor = null;
@@ -186,7 +187,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
         cursor.close();
         return tutor;
-    }
+    }*/
     @SuppressLint("Range")
     public List<Tutor> obtenerTutoresPorBebeId(int bebeId) {
         List<Tutor> tutorList = new ArrayList<>();
@@ -354,7 +355,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         List<String> intoleranciasEnComun = new ArrayList<>();
 
         String query = "SELECT ic.descripcion " +
-                "FROM intolerancias_comunes ic " +
+                "FROM intolerancia_comun ic " +
                 "JOIN intolerancia i ON ic.id = i.intolerancia_comun_id " +
                 "JOIN menu_intolerancia_comun mic ON ic.id = mic.intolerancia_comun_id " +
                 "JOIN menu m ON mic.menu_id = m.id " +
@@ -394,6 +395,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put("bebe_id", bebeId);
         values.put("intolerancia_comun_id", intoleranciaComunId);
         db.insert(TABLE_INTOLERANCIA, null, values);
+    }
+    public void eliminarIntoleranciaComun(String descripcion) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_INTOLERANCIA_COMUN, "descripcion = ?", new String[]{descripcion});
     }
 
     public void actualizarBebe(Bebe bebe) {
