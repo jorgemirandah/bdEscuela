@@ -13,7 +13,6 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
@@ -25,7 +24,6 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -34,7 +32,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -47,7 +44,6 @@ import java.util.List;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements OnBebeClickListener {
-    private static final int REQUEST_CODE_PICK_FILE = 1;
     private TextView textViewFecha;
     private BebeAdapter bebeAdapter;
     private List<Bebe> bebeList;
@@ -133,12 +129,23 @@ public class MainActivity extends AppCompatActivity implements OnBebeClickListen
                         // Permiso concedido, lanzar la cámara
                         launchCamera();
                     } else {
-                        // Permiso denegado
+                        Toast.makeText(this, R.string.no_permiso_camara, Toast.LENGTH_SHORT).show();
                     }
                 }
         );
         btnGuardarAsistencia.setOnClickListener(v -> guardarAsistencia());
         btnAgregarMenu.setOnClickListener(v -> agregarMenu());
+
+        buttonInsertarBebe.setOnLongClickListener(v -> {
+            if (btnImportar.getVisibility() == View.VISIBLE) {
+                btnImportar.setVisibility(View.GONE);
+            } else {
+                btnImportar.setVisibility(View.VISIBLE);
+            }
+            return true;
+        });
+
+
     }
     private String getPathFromUri(Uri uri) {
         String filePath = null;
@@ -183,6 +190,10 @@ public class MainActivity extends AppCompatActivity implements OnBebeClickListen
             String line;
             br.readLine(); // Skip header row
             while ((line = br.readLine()) != null) {
+                if (line.trim().isEmpty()) {
+                    continue; // Skip empty lines
+                }
+
                 String[] values = line.split(",");
 
                 // Ensure the values array has exactly 11 elements
@@ -191,17 +202,13 @@ public class MainActivity extends AppCompatActivity implements OnBebeClickListen
                 if (values.length == 11) {
                     // Check if aula exists
                     Cursor cursor = db.rawQuery("SELECT id FROM aula WHERE nombre = ?", new String[]{values[3]});
-                    long aulaId;
-                    if (cursor.moveToFirst()) {
-                        aulaId = cursor.getLong(0);
-                    } else {
+                    if (!cursor.moveToFirst()) {
                         db.execSQL(sqlAula, new String[]{values[3]});
-                        aulaId = db.compileStatement("SELECT last_insert_rowid()").simpleQueryForLong();
                     }
                     cursor.close();
 
                     // Insert bebe
-                    db.execSQL(sqlBebe, new Object[]{values[1], values[2], aulaId});
+                    db.execSQL(sqlBebe, new Object[]{values[1], values[2], values[3]});
                     long bebeId = db.compileStatement("SELECT last_insert_rowid()").simpleQueryForLong();
 
                     // Insert tutor padre
@@ -252,15 +259,12 @@ public class MainActivity extends AppCompatActivity implements OnBebeClickListen
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
         String fechaAsistencia = textViewFecha.getText().toString();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
-        String horaEntrada = dateFormat.format(new Date());
 
         for (Bebe bebe : bebeList) {
             if (bebe.isAsistiendo()) {
                 ContentValues values = new ContentValues();
                 values.put("bebe_id", bebe.getId());
                 values.put("fecha", fechaAsistencia);
-                values.put("hora_entrada", horaEntrada);
 
                 db.insert("asistencia", null, values);
             }

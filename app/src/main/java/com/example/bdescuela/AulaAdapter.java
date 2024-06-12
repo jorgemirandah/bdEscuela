@@ -45,7 +45,7 @@ public class AulaAdapter extends RecyclerView.Adapter<AulaAdapter.AulaViewHolder
         holder.itemView.setOnClickListener(v -> guardarNombreAulaEnSharedPreferences(aula.getNombre()));
 
         holder.itemView.setOnLongClickListener(v -> {
-            mostrarDialogoConfirmacion(position);
+            mostrarDialogoConfirmacion(position, aula.getNombre());
             return true;
         });
     }
@@ -77,10 +77,10 @@ public class AulaAdapter extends RecyclerView.Adapter<AulaAdapter.AulaViewHolder
         context.startActivity(intent);
     }
 
-    private void mostrarDialogoConfirmacion(int position) {
+    private void mostrarDialogoConfirmacion(int position, String nombreAula) {
         new AlertDialog.Builder(context)
-                .setTitle(R.string.confirmar_eliminacion)
-                .setMessage(R.string.eliminar_aula)
+                .setTitle(context.getString(R.string.confirmar_eliminacion) + " " + nombreAula)
+                .setMessage(context.getString(R.string.eliminar_aula))
                 .setPositiveButton(R.string.si, (dialog, which) -> eliminarAula(position))
                 .setNegativeButton(R.string.no, null)
                 .show();
@@ -94,11 +94,20 @@ public class AulaAdapter extends RecyclerView.Adapter<AulaAdapter.AulaViewHolder
         dbHelper.eliminarBebesPorAula(nombreAula);
 
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        db.delete("aula", "nombre = ?", new String[]{nombreAula});
+        db.beginTransaction();
+        try {
+            db.delete("aula", "nombre = ?", new String[]{nombreAula});
+            db.setTransactionSuccessful();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            db.endTransaction();
+        }
         db.close();
 
         aulaList.remove(position);
         notifyItemRemoved(position);
+        notifyItemRangeChanged(position, aulaList.size());
     }
 
 }

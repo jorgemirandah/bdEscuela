@@ -77,20 +77,19 @@ public class BebeAdapter extends RecyclerView.Adapter<BebeAdapter.BebeViewHolder
         });
 
         holder.itemView.setOnLongClickListener(v -> {
-            showEditOrDeleteDialog(position);
+            showEditOrDeleteDialog(position, bebe.getNombreCompleto());
             return true;
         });
         holder.imageViewAlerta.setOnClickListener(v -> {
             int bebeId = bebe.getId();
             String fechaMenu = fechaActual;
 
-            // Obtener la lista de intolerancias en común
             List<String> intoleranciasEnComun = dbHelper.getIntoleranciasEnComun(bebeId, fechaMenu);
 
             if (intoleranciasEnComun.isEmpty()) {
                 Toast.makeText(context, context.getString(R.string.no_intolerancias), Toast.LENGTH_SHORT).show();
             } else {
-                StringBuilder intoleranciasStr = new StringBuilder(R.string.intolerancias_en_comun);
+                StringBuilder intoleranciasStr = new StringBuilder(context.getString(R.string.intolerancias_en_comun));
                 for (String intolerancia : intoleranciasEnComun) {
                     intoleranciasStr.append("\n").append(intolerancia);
                 }
@@ -108,14 +107,14 @@ public class BebeAdapter extends RecyclerView.Adapter<BebeAdapter.BebeViewHolder
         return bebeList.size();
     }
 
-    private void showEditOrDeleteDialog(int position) {
+    private void showEditOrDeleteDialog(int position, String nombreCompleto) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(R.string.selecciona_opcion)
                 .setItems(new String[]{context.getString(R.string.editar), context.getString(R.string.eliminar)}, (dialog, which) -> {
                     if (which == 0) {
                         showEditDialog(position);
                     } else if (which == 1) {
-                        showDeleteConfirmationDialog(position);
+                        showDeleteConfirmationDialog(position, nombreCompleto);
                     }
                 })
                 .show();
@@ -187,18 +186,20 @@ public class BebeAdapter extends RecyclerView.Adapter<BebeAdapter.BebeViewHolder
                 .setNegativeButton(android.R.string.cancel, null)
                 .show();
     }
-    private void showDeleteConfirmationDialog(int position) {
+    private void showDeleteConfirmationDialog(int position, String nombreCompleto) {
         new AlertDialog.Builder(context)
-                .setTitle(R.string.eliminar_bebe)
-                .setMessage(R.string.seguro_eliminar_bebe)
+                .setTitle(context.getString(R.string.eliminar_bebe) + " " + nombreCompleto)
+                .setMessage(context.getString(R.string.seguro_eliminar_bebe))
                 .setPositiveButton(android.R.string.yes, (dialog, which) -> {
                     try {
                         Bebe bebe = bebeList.get(position);
                         dbHelper.deleteBebe(bebe.getId());
                         bebeList.remove(position);
                         notifyItemRemoved(position);
-                    }catch(Exception e){
+                        notifyItemRangeChanged(position, bebeList.size());
+                    } catch (Exception e) {
                         e.printStackTrace();
+                        Toast.makeText(context, R.string.error_eliminar_bebe, Toast.LENGTH_SHORT).show();
                     }
                 })
                 .setNegativeButton(android.R.string.no, null)

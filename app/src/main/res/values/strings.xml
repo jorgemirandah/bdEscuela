@@ -54,4 +54,6 @@
     <string name="seguro_eliminar_bebe">¿Estás seguro de que deseas eliminar este bebé?</string>
     <string name="asistencia_guardada">Asistencia guardada</string>
     <string name="movil">Movil</string>
+    <string name="no_permiso_camara">Activa el permiso para lanzar la cámara</string>
+    <string name="error_eliminar_bebe">Ha habido un error al intentar eliminar</string>
 </resources>

@@ -134,11 +134,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    public void eliminarBebesPorAula(String aula) {
+    public void eliminarBebesPorAula(String nombreAula) {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete("bebe", "aula = ?", new String[]{aula});
+        db.beginTransaction();
+        try {
+            db.delete("bebe", "aula = ?", new String[]{nombreAula});
+            db.setTransactionSuccessful();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            db.endTransaction();
+        }
         db.close();
     }
+
 
     public int obtenerSiguienteIdAula(){
         SQLiteDatabase db = this.getReadableDatabase();
