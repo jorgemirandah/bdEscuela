@@ -73,4 +73,7 @@ public class SeleccionarAulaActivity extends AppCompatActivity {
         db.close();
         aulaAdapter.notifyDataSetChanged();
     }
+    public AulaAdapter getAulaAdapter() {
+        return aulaAdapter;
+    }
 }

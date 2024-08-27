@@ -32,11 +32,11 @@
     <string name="ver_menu">Ver menú</string>
     <string name="tutor">Tutor</string>
     <string name="seleccionar_todas_aulas">Seleccionar Todas Aulas</string>
-    <string name="insertar_bebe">Insertar bebé</string>
+    <string name="insertar_bebe">Insertar alumno</string>
     <string name="agregar_intolerancia">Agregar Intolerancia</string>
     <string name="nombre_obligatorio">Es obligatorio poner un nombre</string>
     <string name="no_intolerancias">No hay intolerancias en común</string>
-    <string name="aula_obligatoria">Es obligatorio que el bebé tenga un aula. Ves a Seleccionar Aula si no hay ningún aula para elegir</string>
+    <string name="aula_obligatoria">Es obligatorio que el alumno tenga un aula. Ves a Seleccionar Aula si no hay ningún aula para elegir</string>
     <string name="nombre_apellido_obligatorio">Es obligatorio poner un nombre o un apellido</string>
     <string name="eliminar">Eliminar</string>
     <string name="no_hay_intolerancia">No hay ninguna intolerancia común para agregar</string>
@@ -45,15 +45,19 @@
     <string name="si">Sí</string>
     <string name="no">No</string>
     <string name="confirmar_eliminacion">Confirmar eliminación</string>
-    <string name="eliminar_aula">¿Estás seguro de que deseas eliminar este aula? Se eliminarán también todos los bebés asociados.</string>
+    <string name="eliminar_aula">¿Estás seguro de que deseas eliminar este aula? Se eliminarán también todos los alumnos asociados.</string>
     <string name="intolerancias_en_comun">Intolerancias en común: </string>
     <string name="selecciona_opcion">Selecciona una opción</string>
     <string name="editar">Editar</string>
-    <string name="editar_bebe">Editar Bebé</string>
-    <string name="eliminar_bebe">Eliminar Bebé</string>
-    <string name="seguro_eliminar_bebe">¿Estás seguro de que deseas eliminar este bebé?</string>
+    <string name="editar_bebe">Editar Alumno</string>
+    <string name="eliminar_bebe">Eliminar Alumno</string>
+    <string name="seguro_eliminar_bebe">¿Estás seguro de que deseas eliminar este alumno?</string>
     <string name="asistencia_guardada">Asistencia guardada</string>
     <string name="movil">Movil</string>
     <string name="no_permiso_camara">Activa el permiso para lanzar la cámara</string>
     <string name="error_eliminar_bebe">Ha habido un error al intentar eliminar</string>
+    <string name="importarCSV">Importar CSV</string>
+    <string name="ver_asistencia">Ver asistencia</string>
+    <string name="editar_eliminar">¿Quieres editar o eliminar?</string>
+    <string name="editar_aula">Editar aula</string>
 </resources>

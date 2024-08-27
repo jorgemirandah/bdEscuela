@@ -7,22 +7,22 @@
 
     <EditText
         android:id="@+id/editTextNombre"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="386dp"
+        android:layout_height="67dp"
         android:hint="@string/nombre"
         android:inputType="text" />
 
     <EditText
         android:id="@+id/editTextApellido"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="386dp"
+        android:layout_height="67dp"
         android:hint="@string/apellido"
         android:inputType="text" />
 
     <Spinner
         android:id="@+id/spinnerAulas"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_width="386dp"
+        android:layout_height="67dp" />
 
     <Button
         android:id="@+id/buttonInsertar"

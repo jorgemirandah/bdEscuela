@@ -23,12 +23,13 @@
             android:layout_height="wrap_content"
             android:text="@string/_1_1" />
 
-        <Button
-            android:id="@+id/buttonEliminar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:text="@string/eliminar_tutor" />
     </LinearLayout>
+
+    <Button
+        android:id="@+id/buttonEliminar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="@string/eliminar_tutor" />
 
 </LinearLayout>

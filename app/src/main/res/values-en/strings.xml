@@ -56,5 +56,9 @@
     <string name="movil">Mobil</string>
     <string name="no_permiso_camara">Activate permission for launch camera</string>
     <string name="error_eliminar_bebe">There were an error trying to delete</string>
+    <string name="importarCSV">Import CSV</string>
+    <string name="ver_asistencia">Watch attendance</string>
+    <string name="editar_eliminar">¿Do you want edit or delete?</string>
+    <string name="editar_aula">Edit classroom</string>
 
 </resources>

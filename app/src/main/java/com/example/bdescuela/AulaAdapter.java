@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,7 +19,7 @@ import java.util.List;
 
 public class AulaAdapter extends RecyclerView.Adapter<AulaAdapter.AulaViewHolder> {
 
-    private final List<Aula> aulaList;
+    final List<Aula> aulaList;
     private final Context context;
     private final DatabaseHelper dbHelper;
 
@@ -45,7 +46,7 @@ public class AulaAdapter extends RecyclerView.Adapter<AulaAdapter.AulaViewHolder
         holder.itemView.setOnClickListener(v -> guardarNombreAulaEnSharedPreferences(aula.getNombre()));
 
         holder.itemView.setOnLongClickListener(v -> {
-            mostrarDialogoConfirmacion(position, aula.getNombre());
+            mostrarDialogoEditarEliminar(position, aula.getNombre());
             return true;
         });
     }
@@ -77,16 +78,14 @@ public class AulaAdapter extends RecyclerView.Adapter<AulaAdapter.AulaViewHolder
         context.startActivity(intent);
     }
 
-    private void mostrarDialogoConfirmacion(int position, String nombreAula) {
+    private void mostrarDialogoEditarEliminar(int position, String nombreAula) {
         new AlertDialog.Builder(context)
-                .setTitle(context.getString(R.string.confirmar_eliminacion) + " " + nombreAula)
-                .setMessage(context.getString(R.string.eliminar_aula))
-                .setPositiveButton(R.string.si, (dialog, which) -> eliminarAula(position))
-                .setNegativeButton(R.string.no, null)
+                .setTitle(context.getString(R.string.editar_eliminar) + " " + nombreAula)
+                .setPositiveButton(R.string.editar, (dialog, which) -> editarAula(position))
+                .setNegativeButton(R.string.eliminar, (dialog, which) -> eliminarAula(position))
                 .show();
     }
 
-    //Se elimina el aula y los bebés asociados
     private void eliminarAula(int position) {
         Aula aula = aulaList.get(position);
         String nombreAula = aula.getNombre();
@@ -110,4 +109,17 @@ public class AulaAdapter extends RecyclerView.Adapter<AulaAdapter.AulaViewHolder
         notifyItemRangeChanged(position, aulaList.size());
     }
 
+    private void editarAula(int position) {
+        Aula aula = aulaList.get(position);
+
+        // Launch the AgregarAulaDialog with pre-filled data
+        AgregarAulaDialog dialog = new AgregarAulaDialog();
+        Bundle args = new Bundle();
+        args.putString("nombre", aula.getNombre());
+        args.putInt("capacidad", aula.getCapacidad());
+        args.putInt("color", aula.getColor());
+        args.putInt("position", position);
+        dialog.setArguments(args);
+        dialog.show(((SeleccionarAulaActivity) context).getSupportFragmentManager(), "AgregarAulaDialog");
+    }
 }

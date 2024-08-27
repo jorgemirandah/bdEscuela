@@ -43,10 +43,10 @@
         tools:ignore="VisualLintTextFieldSize" />
 
     <EditText
-        android:id="@+id/editTextDireccion"
+        android:id="@+id/editTextMovil"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/direcci_n"
+        android:hint="@string/movil"
         android:inputType="text|textCapWords"
         android:minHeight="48dp"
         tools:ignore="VisualLintTextFieldSize" />

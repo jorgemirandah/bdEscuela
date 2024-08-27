@@ -21,7 +21,9 @@ public class AgregarAulaDialog extends AppCompatDialogFragment {
 
     private EditText editTextNombre, editTextCapacidad;
     private TextView textViewColor;
-    private int aulaColor = 0xFFFFFF; // Uso el color blanco en caso de que no se ponga otro color
+    private int aulaColor = 0xFFFFFF; // Default white color
+    private boolean isEditing = false;
+    private int position = -1;
 
     @NonNull
     @Override
@@ -52,14 +54,31 @@ public class AgregarAulaDialog extends AppCompatDialogFragment {
                 return;
             }
             int capacidad = 0;
-            try{
+            try {
                 capacidad = Integer.parseInt(capacidadStr);
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
-            agregarAula(nombre, capacidad, aulaColor);
+
+            if (isEditing) {
+                editarAula(nombre, capacidad, aulaColor, position);
+            } else {
+                agregarAula(nombre, capacidad, aulaColor);
+            }
             dismiss();
         });
+
+        // Check if this dialog was opened for editing an existing aula
+        Bundle args = getArguments();
+        if (args != null) {
+            editTextNombre.setText(args.getString("nombre"));
+            editTextCapacidad.setText(String.valueOf(args.getInt("capacidad")));
+            aulaColor = args.getInt("color");
+            textViewColor.setBackgroundColor(aulaColor);
+            isEditing = true;
+            position = args.getInt("position");
+            builder.setTitle(R.string.editar_aula);
+        }
 
         return builder.create();
     }
@@ -80,7 +99,6 @@ public class AgregarAulaDialog extends AppCompatDialogFragment {
     }
 
     private void agregarAula(String nombre, int capacidad, int color) {
-
         DatabaseHelper dbHelper = new DatabaseHelper(getContext());
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
@@ -95,7 +113,27 @@ public class AgregarAulaDialog extends AppCompatDialogFragment {
         db.insert("aula", null, values);
 
         SeleccionarAulaActivity activity = (SeleccionarAulaActivity) getActivity();
-        assert activity != null;
-        activity.actualizarListaAulas();
+        if (activity != null) {
+            activity.actualizarListaAulas();
+        }
+    }
+
+    private void editarAula(String nombre, int capacidad, int color, int position) {
+        DatabaseHelper dbHelper = new DatabaseHelper(getContext());
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put("nombre", nombre);
+        values.put("capacidad", capacidad);
+        values.put("color", color);
+
+        AulaAdapter adapter = ((SeleccionarAulaActivity) getActivity()).getAulaAdapter();
+        Aula aula = adapter.aulaList.get(position);
+        db.update("aula", values, "id = ?", new String[]{String.valueOf(aula.getId())});
+
+        aula.setNombre(nombre);
+        aula.setCapacidad(capacidad);
+        aula.setColor(color);
+        adapter.notifyItemChanged(position);
     }
 }

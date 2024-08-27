@@ -110,14 +110,23 @@ public class BebeAdapter extends RecyclerView.Adapter<BebeAdapter.BebeViewHolder
     private void showEditOrDeleteDialog(int position, String nombreCompleto) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(R.string.selecciona_opcion)
-                .setItems(new String[]{context.getString(R.string.editar), context.getString(R.string.eliminar)}, (dialog, which) -> {
+                .setItems(new String[]{context.getString(R.string.editar), context.getString(R.string.eliminar), context.getString(R.string.ver_asistencia)}, (dialog, which) -> {
                     if (which == 0) {
                         showEditDialog(position);
                     } else if (which == 1) {
                         showDeleteConfirmationDialog(position, nombreCompleto);
+                    } else if (which == 2) {
+                        verAsistencia(position);
                     }
                 })
                 .show();
+    }
+
+    private void verAsistencia(int position) {
+        Bebe bebe = bebeList.get(position);
+        Intent intent = new Intent(context, VerAsistenciaActivity.class);
+        intent.putExtra("bebe_id", bebe.getId());
+        context.startActivity(intent);
     }
 
     private void showEditDialog(int position) {
@@ -263,7 +272,4 @@ public class BebeAdapter extends RecyclerView.Adapter<BebeAdapter.BebeViewHolder
         }
         return Color.WHITE;
     }
-
-
-
 }
