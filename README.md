@@ -2,6 +2,8 @@ NURSERY MANAGER APP
 
 A mobile application developed in Java using Android Studio and SQLite, designed to help staff manage daily tasks in a nursery school environment. This app was used in a real nursery school in Zaragoza, Spain.
 
+![image](https://github.com/user-attachments/assets/cae0ebea-5169-4e40-8b2c-fe225e9a1de4)
+
 
 📱 Features
 
